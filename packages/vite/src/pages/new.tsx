@@ -1,6 +1,3 @@
-/* eslint-disable indent */
-
-import { NextPage } from 'next'
 import {
   Button, Center, Flex, Heading, Spinner, Text, chakra,
   Stack, Container, useToast, Table, Thead, Th, Tr,
@@ -17,11 +14,11 @@ import { useForm } from 'react-hook-form'
 import { CONFIG } from '@/config'
 import { switchTo, extractMessage } from '@/lib/helpers'
 
-export const New: NextPage = () => (
+export const New = () => (
   <Container maxW="full">
-    <Head>
+    <Helmet>
       <title>’𝖈𝖍𝖎𝖊𝖛𝖊: Ⲛⲉⲱ Ⲧⲟⲕⲉⲛ</title>
-    </Head>
+    </Helmet>
     <chakra.header>
       <Flex justify="center">
         <Header my="7vh" maxW="xl"/>
@@ -37,7 +34,9 @@ const Content: React.FC = () => {
   const {
     ensProvider, roContract, rwContract, connecting, connect, chain, address,
   } = useWeb3()
-  const { query: { tokenId: id } } = useRouter()
+  console.log({connecting})
+  const [search, setSearch] = useSearchParams({ tokenId: '' })
+  const id = search.get('tokenId')
   const [tokenId, setTokenId] = (
     useState(Array.isArray(id) ? id[0] : id)
   )
