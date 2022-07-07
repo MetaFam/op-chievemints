@@ -1,14 +1,13 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
-import Head from 'next/head'
+// import '../styles/globals.css'
+import {Helmet} from 'react-helmet'
 import { ChakraProvider } from '@chakra-ui/react'
-import { Web3ContextProvider } from 'lib/hooks'
+import { Web3ContextProvider } from './lib/hooks'
 import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
 } from '@apollo/client'
-import { CONFIG } from 'config'
+import { CONFIG } from './config'
 
 
 const client = new ApolloClient({
@@ -16,9 +15,11 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-const App = ({ Component, pageProps }: AppProps) => (
+const App: React.FC = () => {
+  if(true) return <>Testing</>
+  return (
   <ChakraProvider>
-    <Head>
+    <Helmet>
       <link
         rel="shortcut icon"
         href="favicon.png"
@@ -27,13 +28,14 @@ const App = ({ Component, pageProps }: AppProps) => (
         name="viewport"
         content="width=device-width, initial-scale=1.0"
       />
-    </Head>
+    </Helmet>
     <ApolloProvider {...{ client }}>
       <Web3ContextProvider>
-        <Component {...pageProps} />
+       Test 
+       {/* <Component {...pageProps} /> */}
       </Web3ContextProvider>
     </ApolloProvider>
-  </ChakraProvider>
-)
+  </ChakraProvider>)
+}
 
 export default App
