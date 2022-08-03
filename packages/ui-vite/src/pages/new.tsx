@@ -1,3 +1,6 @@
+/* eslint-disable indent */
+
+import { NextPage } from 'next'
 import {
   Button, Center, Flex, Heading, Spinner, Text, chakra,
   Stack, Container, useToast, Table, Thead, Th, Tr,
@@ -13,11 +16,11 @@ import { useForm } from 'react-hook-form'
 import { CONFIG } from '@/config'
 import { switchTo, extractMessage } from '@/lib/helpers'
 
-export const New = () => (
+export const New: NextPage = () => (
   <Container maxW="full">
-    <Helmet>
+    <Head>
       <title>’𝖈𝖍𝖎𝖊𝖛𝖊: Ⲛⲉⲱ Ⲧⲟⲕⲉⲛ</title>
-    </Helmet>
+    </Head>
     <chakra.header>
       <Flex justify="center">
         <Header my="7vh" maxW="xl"/>
@@ -33,9 +36,7 @@ const Content: React.FC = () => {
   const {
     ensProvider, roContract, rwContract, connecting, connect, chain, address,
   } = useWeb3()
-  console.log({connecting})
-  const [search, setSearch] = useSearchParams({ tokenId: '' })
-  const id = search.get('tokenId')
+  const { query: { tokenId: id } } = useRouter()
   const [tokenId, setTokenId] = (
     useState(Array.isArray(id) ? id[0] : id)
   )
@@ -67,9 +68,8 @@ const Content: React.FC = () => {
     load()
   }, [roContract])
 
-  const reserve = useCallback(
-    async (data: { maintainer?: string }) => {
-      setWorking(true)
+  const reserve = useCallback(async (data: Record<string, unknown>) => {
+    setWorking(true)
 
     try {
       if(!rwContract) {
@@ -103,16 +103,22 @@ const Content: React.FC = () => {
           }
         }
       ))
-    
-      let { maintainer } = data
+
+      let { maintainer }: { maintainer?: string } = data
       if(maintainer === '') {
         maintainer = address
       }
-      if(maintainer?.includes('.')) {
+      if(maintainer == null) {
+        throw new Error('`maintainer` is not set.')
+      }
+      if(maintainer.includes('.')) {
         if(!ensProvider) {
           throw new Error('ENS provider not defined.')
         }
-        maintainer = await ensProvider.resolveName(maintainer) ?? undefined
+        maintainer = (
+          (await ensProvider.resolveName(maintainer))
+          ?? undefined
+        )
       }
       const tx = await rwContract['create(address,uint8[],uint8[])'](
         maintainer, grants, disables
