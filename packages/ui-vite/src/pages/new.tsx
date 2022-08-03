@@ -6,9 +6,8 @@ import {
 import { useWeb3 } from '@/lib/hooks'
 import { useCallback, useEffect, useState } from 'react'
 import { NETWORKS } from '@/lib/networks'
-import Head from 'next/head'
-import { OptionsForm, Header } from '@/components'
-import { useRouter } from 'next/router'
+import { Helmet } from 'react-helmet'
+import { Header, OptionsForm } from '@/components'
 import { Event } from 'ethers'
 import { useForm } from 'react-hook-form'
 import { CONFIG } from '@/config'
@@ -68,8 +67,9 @@ const Content: React.FC = () => {
     load()
   }, [roContract])
 
-  const reserve = useCallback(async (data) => {
-    setWorking(true)
+  const reserve = useCallback(
+    async (data: { maintainer?: string }) => {
+      setWorking(true)
 
     try {
       if(!rwContract) {
@@ -103,16 +103,16 @@ const Content: React.FC = () => {
           }
         }
       ))
-
+    
       let { maintainer } = data
       if(maintainer === '') {
         maintainer = address
       }
-      if(maintainer.includes('.')) {
+      if(maintainer?.includes('.')) {
         if(!ensProvider) {
           throw new Error('ENS provider not defined.')
         }
-        maintainer = await ensProvider.resolveName(maintainer)
+        maintainer = await ensProvider.resolveName(maintainer) ?? undefined
       }
       const tx = await rwContract['create(address,uint8[],uint8[])'](
         maintainer, grants, disables
