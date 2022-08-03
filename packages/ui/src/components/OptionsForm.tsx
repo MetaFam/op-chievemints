@@ -12,11 +12,11 @@ import {
 import { useCallback, useState } from 'react'
 import { useWeb3 } from '@/lib/hooks'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/router'
 import JSON5 from 'json5'
 import {
   ERC1155Metadata, FormValues, Maybe, OpenSeaAttribute, Attribute,
 } from '@/lib/types'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 
 export const OptionsForm: React.FC<{
   purpose?: 'create' | 'update'
@@ -26,7 +26,7 @@ export const OptionsForm: React.FC<{
   purpose = 'create', tokenId, metadata
 }) => {
   const { rwContract } = useWeb3()
-  const router = useRouter()
+  const navigate = useNavigate()
   const {
     register, handleSubmit, watch, setValue,
     formState: {
@@ -57,9 +57,9 @@ export const OptionsForm: React.FC<{
         await tx.wait()
       }
           
-      return router.push(`/view/${regexify(tokenId)}`)
+      navigate(`/view/${regexify(tokenId)}`)
     },
-    [purpose, router, rwContract, tokenId],
+    [purpose, navigate, rwContract, tokenId],
   )
 
   const buildMeta = async (data: FormValues) => {

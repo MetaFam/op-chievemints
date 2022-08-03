@@ -1,25 +1,18 @@
-import { useWeb3 } from 'lib/hooks'
+import { useWeb3 } from '@/lib/hooks'
 import { NextPage } from 'next'
-import { useRouter } from 'next/router'
 import { ReactNode, useEffect, useState } from 'react'
-import { ERC1155Metadata, Maybe } from 'lib/types'
-import { deregexify, httpURL, regexify } from 'lib/helpers'
-import { HomeLink, OptionsForm } from 'components'
+import { ERC1155Metadata, Maybe } from '@/lib/types'
+import { httpURL, regexify } from '@/lib/helpers'
+import { HomeLink, OptionsForm } from '@/components'
 import { Box } from '@chakra-ui/react'
 import Head from 'next/head'
+import { useParams } from 'react-router-dom'
 
 export const Edit: NextPage = () => {
-  const { query: { nftId } } = useRouter()
+  let { nftId: tokenId } = useParams() 
   const [metadata, setMetadata] = useState<Maybe<ERC1155Metadata>>()
   const [error, setError] = useState<ReactNode>()
-  const [tokenId, setTokenId] = useState<string>()
   const { roContract } = useWeb3()
-
-  useEffect(() => {
-    setTokenId(deregexify(
-      Array.isArray(nftId) ? nftId[0] : nftId
-    ))
-  }, [nftId])
 
   useEffect(() => {
     const getMetadata = async () => {

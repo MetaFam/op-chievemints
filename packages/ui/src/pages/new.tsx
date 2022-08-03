@@ -15,12 +15,14 @@ import { Event } from 'ethers'
 import { useForm } from 'react-hook-form'
 import { CONFIG } from '@/config'
 import { switchTo, extractMessage } from '@/lib/helpers'
+import { Helmet } from 'react-helmet'
+import { useSearchParams } from 'react-router-dom'
 
 export const New: NextPage = () => (
   <Container maxW="full">
-    <Head>
+    <Helmet>
       <title>’𝖈𝖍𝖎𝖊𝖛𝖊: Ⲛⲉⲱ Ⲧⲟⲕⲉⲛ</title>
-    </Head>
+    </Helmet>
     <chakra.header>
       <Flex justify="center">
         <Header my="7vh" maxW="xl"/>
@@ -36,7 +38,8 @@ const Content: React.FC = () => {
   const {
     ensProvider, roContract, rwContract, connecting, connect, chain, address,
   } = useWeb3()
-  const { query: { tokenId: id } } = useRouter()
+  const [search, setSearch] = useSearchParams({ tokenId: '' })
+  const id = search.get('tokenId')
   const [tokenId, setTokenId] = (
     useState(Array.isArray(id) ? id[0] : id)
   )

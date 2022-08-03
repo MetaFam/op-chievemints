@@ -6,12 +6,12 @@ import {
   OrderedList, ListItem, Stack, Text, Flex, Spinner, Checkbox, RadioGroup, Radio, useToast,
 } from '@chakra-ui/react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 import type { NextPage } from 'next'
-import { capitalize, httpURL } from 'lib/helpers'
-import { Maybe, ERC1155Metadata, Optional } from 'lib/types'
-import { useWeb3 } from 'lib/hooks'
-import { HomeLink } from 'components'
+import { capitalize, httpURL } from '@/lib/helpers'
+import { Maybe, ERC1155Metadata, Optional } from '@/lib/types'
+import { useWeb3 } from '@/lib/hooks'
+import { HomeLink } from '@/components'
+import { useParams } from 'react-router-dom'
 
 const Address: React.FC<{ name: string }> = ({ name }) => {
   const { ensProvider } = useWeb3()
@@ -54,8 +54,8 @@ const split = (raw: string) => (
 )
 
 const Disburse: NextPage = () => {
-  const router = useRouter()
-  let tokenId = router.query.nftId
+  let { nftId: tokenId } = useParams() 
+  
   if (Array.isArray(tokenId)) {
     [tokenId] = tokenId
   }

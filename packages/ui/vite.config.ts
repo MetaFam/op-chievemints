@@ -20,7 +20,7 @@ export default defineConfig({
     esbuildOptions: {
       sourcemap: false,
       define: {
-          global: 'globalThis'
+        global: 'globalThis',
       },
       plugins: [
         NodeGlobalsPolyfillPlugin({
@@ -37,6 +37,9 @@ export default defineConfig({
       stream: "stream-browserify",
       util: 'util',
     }
+  },
+  define: {
+    'process.env': {},
   }
 })
 

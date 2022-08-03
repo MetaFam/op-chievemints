@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import {
   Container, Flex, chakra,
 } from '@chakra-ui/react'
@@ -10,19 +9,18 @@ import {
   Header, TokensTable, TokenFilterForm,
 } from '@/components'
 import { useWeb3 } from '@/lib/hooks'
-import { useRouter } from 'next/router'
-
-
-
+import { Helmet } from 'react-helmet'
+import { useSearchParams } from 'react-router-dom'
 
 const Home: NextPage = () => {
   const [tokens, setTokens] = useState<Array<TokenState>>([])
-  const {
-    query: { gating = false, visible, limit: limitParam = 10, offset: offsetParam = 0 }
-  } = useRouter()
-  const [limit, setLimit] = useState(Number(limitParam))
-  const [offset, setOffset] = useState(Number(offsetParam))
-  const [gatingVisible, setGatingVisible] = useState(!!gating)
+  const [query] = useSearchParams()
+  const visible = query.get('visible') ?? ''
+  const [limit, setLimit] = useState(Number(query.get('limit') ?? 10))
+  const [offset, setOffset] = useState(Number(query.get('offset') ?? 0))
+  const [gatingVisible, setGatingVisible] = (
+    useState(!!query.get('gating') ?? false)
+  )
   const [visibleList, setVisibleList] = useState<Array<string>>([])
   const { roContract, constsContract } = useWeb3()
   const setToken = (index: number, info: Record<string, unknown>) => {
@@ -34,25 +32,8 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    setGatingVisible(!!gating)
-  }, [gating])
-
-  useEffect(() => {
-    setOffset(Number(offsetParam))
-  }, [offsetParam])
-
-  useEffect(() => {
-    setLimit(Number(limitParam))
-  }, [limitParam])
-
-  useEffect(() => {
-    if (visible) {
-      let visibleParam = visible
-      if (Array.isArray(visibleParam)) {
-        ([visibleParam] = visibleParam)
-      }
-      setVisibleList(visibleParam.split(/\s*,\s*/).filter((str) => str !== ''))
-    }
+    setVisibleList(visible.split(/\s*,\s*/)
+    .filter((str) => str !== ''))
   }, [visible])
 
   useEffect(
@@ -105,8 +86,6 @@ const Home: NextPage = () => {
                 const uri = await roContract.uri(id)
                 if(uri === '') throw new Error('No URI')
                 setToken(index, { uri })
-
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const url = httpURL(uri)!
                 const response = await fetch(url)
                 const data = await response.text()
@@ -143,13 +122,13 @@ const Home: NextPage = () => {
 
   return (
     <Container maxW="full">
-      <Head>
+      <Helmet>
         <title>𝔐𝔢𝔱𝔞𝔊𝔞𝔪𝔢’𝔰 ’𝓒𝓱𝓲𝓮𝓿𝓮𝓶𝓲𝓷𝓽𝓼</title>
         <meta
           name="description"
           content="MetaGame’s ’Chievemint NFTs"
         />
-      </Head>
+      </Helmet>
 
       <chakra.header h="45vh">
         <Flex maxW="40rem" margin="auto">

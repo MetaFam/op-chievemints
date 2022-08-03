@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { gql, useQuery } from '@apollo/client'
 import {
@@ -9,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { httpURL } from 'lib/helpers'
 import { HomeLink } from 'components'
 import contractAddress from 'contracts/polygon/BulkDisbursableNFTs.address'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 const LIMIT = 100
 const NFT_OWNERS = gql`
@@ -39,9 +39,10 @@ export type Ownership = {
 }
 
 export const Owners = () => {
-  const { query } = useRouter()
-  let { nftId } = query
-  const { start_after: startAfter = '', offset = 0 } = query
+  let { nftId } = useParams() 
+  const [query] = useSearchParams()
+  const startAfter = query.get('start_after') ?? ''
+  const offset = query.get('offset') ?? 0
 
   const [ownerships, setOwnerships] = (
     useState<Array<Ownership>>([])

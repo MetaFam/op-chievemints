@@ -204,13 +204,13 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
         const { contractNetwork: chain } = CONFIG
         if(!contractAddress) {
           import(
-            `../contracts/${chain}/BulkDisbursableNFTs.address`
+            `../contracts/${chain}/BulkDisbursableNFTs.address.ts`
           )
           .then(({ default: addr }) => setContractAddress(addr))
         }
         if(!abi) {
           import (
-            `../contracts/${chain}/BulkDisbursableNFTs.abi`
+            `../contracts/${chain}/BulkDisbursableNFTs.abi.ts`
           )
           .then(({ default: abi }) => setABI(abi))
         }
@@ -223,12 +223,12 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
       const libs = async () => {
         const { contractNetwork: chain } = CONFIG
         import(
-          `../contracts/${chain}/Bits.address`
+          `../contracts/${chain}/Bits.address.ts`
         )
         .then(({ default: addr }) => setConstsContractAddress(addr))
 
         import (
-          `../contracts/${chain}/Bits.abi`
+          `../contracts/${chain}/Bits.abi.ts`
         )
         .then(({ default: abi }) => setConstsABI(abi))
       }

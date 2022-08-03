@@ -5,7 +5,6 @@ import {
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 import type { NextPage } from 'next'
 import ReactMarkdown from 'react-markdown'
 import {
@@ -14,11 +13,12 @@ import {
 import type { ERC1155Metadata } from '@/lib/types'
 import { HomeLink } from '@/components'
 import { useWeb3 } from '@/lib/hooks'
+import { useParams } from 'react-router-dom'
 
 const Markdown = chakra(ReactMarkdown)
 
 const View: NextPage = () => {
-  const { query: { nftId: idParam } } = useRouter()
+  const { nftId: idParam } = useParams() 
   const [metadata, setMetadata] = useState<ERC1155Metadata>()
   const [error, setError] = useState<string>()
   const { roContract } = useWeb3()
