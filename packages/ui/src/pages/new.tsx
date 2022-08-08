@@ -1,13 +1,10 @@
-/* eslint-disable indent */
-
-import { NextPage } from 'next'
 import {
   Button, Center, Flex, Heading, Spinner, Text, chakra,
   Stack, Container, useToast, Table, Thead, Th, Tr,
   Tbody, Td, Checkbox, Input, Tooltip,
 } from '@chakra-ui/react'
 import { useWeb3 } from '@/lib/hooks'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { NETWORKS } from '@/lib/networks'
 import { Helmet } from 'react-helmet'
 import { Header, OptionsForm } from '@/components'
@@ -18,7 +15,7 @@ import { switchTo, extractMessage } from '@/lib/helpers'
 import { Helmet } from 'react-helmet'
 import { useSearchParams } from 'react-router-dom'
 
-export const New: NextPage = () => (
+export const New = () => (
   <Container maxW="full">
     <Helmet>
       <title>’𝖈𝖍𝖎𝖊𝖛𝖊: Ⲛⲉⲱ Ⲧⲟⲕⲉⲛ</title>
