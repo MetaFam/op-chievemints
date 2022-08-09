@@ -12,8 +12,9 @@ import { HardhatEthersHelpers } from '@nomiclabs/hardhat-ethers/types'
 import '@typechain/ethers-v5'
 import '@typechain/hardhat'
 import {
-  HardhatUserConfig, HttpNetworkConfig, HttpNetworkUserConfig, NetworkUserConfig
+  HardhatUserConfig, HttpNetworkUserConfig, HttpNetworkHDAccountsConfig,
 } from 'hardhat/types'
+import * as bip39 from 'bip39'
 import { deregexify } from './lib/helpers'
 
 const { isAddress, getAddress, formatUnits } = utils
@@ -23,7 +24,7 @@ const { isAddress, getAddress, formatUnits } = utils
 //
 const defaultNetwork = process.env.CHAIN_NAME ?? 'polygon'
 
-const mnemonic = (() => {
+let mnemonic = (() => {
   try {
     return fs.readFileSync('./mnemonic.txt').toString().trim()
   } catch (e) {
@@ -34,8 +35,28 @@ const mnemonic = (() => {
 })()
 
 if (!mnemonic || mnemonic === '') {
-  throw new Error('Mnemonic Not Defined')
+  mnemonic = process.env.MNEMONIC
+
+  if(!mnemonic) {
+    console.warn('Generating and saving mnemonic to `mnemonic.txt`.')
+    mnemonic = bip39.generateMnemonic()
+    fs.writeFileSync('./mnemonic.txt', mnemonic.toString())
+  }
 }
+
+const apiKey = Object.fromEntries(
+  Object.entries({
+    mainnet: 'ETHERSCAN_API_KEY',
+    rinkeby: 'ETHERSCAN_API_KEY',
+    polygon: 'POLYGONSCAN_API_KEY',
+    polygonMumbai: 'POLYGONSCAN_API_KEY',
+  }).map(([net, key]) => {
+    const value = process.env[key]
+    if(!value) throw new Error(`Missing \`$${key}\`.`)
+    return [net, value]
+  })
+)
+apiKey.gnosis = 'any value will work here'
 
 const infuraId = process.env.INFURA_ID
 const alchemyId = process.env.ALCHEMY_ID
@@ -76,9 +97,8 @@ const config: HardhatUserConfig = {
       url: `https://goerli.infura.io/v3/${infuraId}`,
       accounts: { mnemonic },
     },
-    xdai: {
-      url: 'https://rpc.xdaichain.com/',
-      gasPrice: 1000000000,
+    gnosis: {
+      url: 'https://rpc.gnosischain.com/',
       accounts: { mnemonic },
     },
     polygon: {
@@ -101,15 +121,7 @@ const config: HardhatUserConfig = {
       },
     }],
   },
-  etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      rinkeby: process.env.ETHERSCAN_API_KEY,
-      polygon: process.env.POLYGONSCAN_API_KEY,
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
-      xdai: "any value will work here",
-    },
-  },
+  etherscan: { apiKey },
   typechain: {
     target: 'ethers-v5',
     outDir: '../ui/contracts/types/',
