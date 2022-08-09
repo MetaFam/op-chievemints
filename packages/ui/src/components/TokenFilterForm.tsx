@@ -1,11 +1,13 @@
+import { toNumList } from '@/lib/helpers'
+import { Limits } from '@/lib/types'
 import { Box, Button, Checkbox, Flex, FormControl, FormLabel, Input } from '@chakra-ui/react'
-import React, { SetStateAction, useEffect } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export type FilterValues = {
   limit: number
   offset: number
-  visibleList: string
+  visible: string
   gatingVisible: boolean
 }
 
@@ -17,34 +19,35 @@ export const TokenFilterForm: React.FC<{
   setOffset: (offset: SetStateAction<number>) => void
   gatingVisible: boolean
   setGatingVisible: (gatingVisible: SetStateAction<boolean>) => void
-  visibleList: Array<string>
-  setVisibleList: (visibleList: SetStateAction<Array<string>>) => void 
+  visibleList: Array<string | Limits>
+  setVisibleList: (visible: SetStateAction<Array<string | Limits>>) => (
+    void
+  ) 
 }> = ({
   limit = 10, setLimit, offset = 0, setOffset,
   gatingVisible = false, setGatingVisible,
   visibleList = [], setVisibleList
 }) => {
+  const [visible, setVisible] = useState(null)
   const {
     register, handleSubmit, control, setValue,
-    formState: {
-      errors, isSubmitting: processing, isDirty: dirty,
-    },
   } = useForm<FilterValues>()
   const submit = async (data: FilterValues) => {
-    console.log({data})
+    console.log({ data })
     setLimit(Number(data.limit))
     setOffset(Number(data.offset))
     setGatingVisible(data.gatingVisible)
-    setVisibleList(data.visibleList?.split(/\s*,\s*/).filter((str) => str !== ''))
-
+    setVisible(data.visible)
+    setVisibleList(toNumList(data.visible))
   }
+
   useEffect(() => {
     setValue('limit', limit)
     setValue('offset', offset)
-    setValue('visibleList', visibleList.join(', '))
+    setValue('visible', visible)
     setValue('gatingVisible', gatingVisible)
     
-  }, [limit, offset, visibleList, gatingVisible])
+  }, [limit, offset, visible, gatingVisible, setValue])
 
   return (
     <Box
@@ -76,8 +79,8 @@ export const TokenFilterForm: React.FC<{
         <Flex align="center" my={1} >
           <FormLabel _after={{ content: '":"' }}>Visible&#xA0;List</FormLabel>
           <Input
-            placeholder="Comma separated list of indices."
-            {...register('visibleList')}
+            placeholder="Comma, space and dash separated list of indices."
+            {...register('visible')}
           />
         </Flex>
       </FormControl>
