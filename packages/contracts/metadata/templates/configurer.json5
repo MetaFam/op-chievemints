@@ -2,8 +2,8 @@
   name: '’Chievemints Configurer',
   description: 'Holders of this token can update the metadata associated with a token.',
   decimals: 0,
-  external_url: 'https://metafam.github.io/chievemints/edit/',
-  image: 'ipfs://{assets-cid}/wrench & screwdriver.svg',
+  external_url: 'https://chiev.es/',
+  image: 'ipfs://{assets-cid}/scroll.svg',
   background_color: '01525B',
   properties: {},
   attributes: [
