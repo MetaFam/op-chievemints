@@ -9,7 +9,7 @@ import { NETWORKS } from '@/lib/networks'
 import { OptionsForm, Header, SubmitButton } from '@/components'
 import { Event } from 'ethers'
 import { useForm } from 'react-hook-form'
-import { CONFIG } from '@/config'
+import { rolePermissions } from '@/config'
 import { switchTo, extractMessage } from '@/lib/helpers'
 import { Helmet } from 'react-helmet'
 import { useSearchParams } from 'react-router-dom'
@@ -43,7 +43,6 @@ const Content: React.FC = () => {
   const [working, setWorking] = useState(false)
   const { register, handleSubmit } = useForm()
   const toast = useToast()
-  const { rolePermissions } = CONFIG
 
   useEffect(() => {
     if(typeof id === 'string') {
