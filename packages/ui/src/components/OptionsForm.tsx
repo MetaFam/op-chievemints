@@ -109,7 +109,7 @@ export const OptionsForm: React.FC<{
     }
 
     if(animation instanceof File || typeof animation === 'string') {
-      metadata.animation_url = (await ipfsify({ filesOrURL: animation, storage }))[0]
+      metadata.animation_url = await ipfsify({ filesOrURL: animation, storage })
     } else if (animation != null) {
       console.warn(`Unknown Animation Type: ${typeof animation}`)
     }
@@ -214,8 +214,8 @@ export const OptionsForm: React.FC<{
                     metadata = JSON5.parse(json5)
                     break
                   }
-                  await configure({ metadata })
                 }
+                await configure({ metadata })
                 break
               }
               case URI_FORM: {

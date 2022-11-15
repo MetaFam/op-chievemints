@@ -169,8 +169,13 @@ const Home = () => {
                   if(!response.ok) {
                     throw new Error(`Request Status: ${response.status}`)
                   }
-                  const data = await response.text()
-                  setToken(idx, { metadata: JSON5.parse(data) })
+                  let body
+                  try {
+                    body = await response.text()
+                    setToken(idx, { metadata: JSON5.parse(body) })
+                  } catch(error) {
+                    console.debug({ error, body })
+                  }
                 })(),
                 (async () => {
                   const supply = await roContract.totalSupply(id)
@@ -178,7 +183,6 @@ const Home = () => {
                 })(),
                 (async () => {
                   const max = await roContract.getMax(id)
-                  console.info({ max })
                   setToken(idx, { max: max.toBigInt() })
                 })(),
               ])
