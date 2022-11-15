@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "skipLibCheck": true,
+    "composite": true,
     "sourceMap": true,
     "jsx": "react",
     "baseUrl": "./src/",

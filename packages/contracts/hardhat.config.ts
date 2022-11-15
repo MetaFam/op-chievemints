@@ -19,22 +19,16 @@ import { deregexify, load } from './lib/helpers'
 
 const { isAddress, getAddress, formatUnits } = utils
 
-//
-// Select the network you want to deploy to here:
-//
 const defaultNetwork = process.env.CHAIN_NAME ?? 'polygon'
 
 let mnemonic = (() => {
   try {
     return fs.readFileSync('./mnemonic.txt').toString().trim()
   } catch (e) {
-    // if (defaultNetwork !== 'localhost') {
-    //   console.log(' ☢️ WARNING: No mnemonic.txt created for a deploy account. Try `yarn run generate` and then `yarn run account`.')
-    // }
   }
 })()
 
-if (!mnemonic || mnemonic === '') {
+if(!mnemonic || mnemonic === '') {
   mnemonic = process.env.MNEMONIC
 
   if(!mnemonic) {
@@ -44,29 +38,42 @@ if (!mnemonic || mnemonic === '') {
   }
 }
 
+const validationKeyNames = {
+  mainnet: 'ETHERSCAN_API_KEY',
+  rinkeby: 'ETHERSCAN_API_KEY',
+  polygon: 'POLYGONSCAN_API_KEY',
+  polygonMumbai: 'POLYGONSCAN_API_KEY',
+  dysMumbai: 'POLYGONSCAN_API_KEY',
+}
+
 const apiKey = Object.fromEntries(
-  Object.entries({
-    mainnet: 'ETHERSCAN_API_KEY',
-    rinkeby: 'ETHERSCAN_API_KEY',
-    polygon: 'POLYGONSCAN_API_KEY',
-    polygonMumbai: 'POLYGONSCAN_API_KEY',
-  }).map(([net, key]) => {
-    const value = process.env[key]
-    if(!value) throw new Error(`Missing \`$${key}\`.`)
-    return [net, value]
-  })
+  Object.entries(
+    validationKeyNames
+  ).map(([net, key]) => (
+    [net, process.env[key]]
+  )).filter(([, value]) => value !== undefined)
 )
 apiKey.gnosis = 'any value will work here'
 
+if(!apiKey[defaultNetwork]) {
+  const keyName = validationKeyNames[
+    defaultNetwork as keyof typeof validationKeyNames
+  ]
+  if(!keyName) {
+    throw new Error(
+      `No \`validationKeyNames\` entry for network: ${defaultNetwork}`
+    )
+  }
+  throw new Error(
+    `Missing \`$${keyName}\` needed for validation on ${defaultNetwork}.`
+  )
+}
+
 const gasMultiplier = 1.5
-const infuraId = process.env.INFURA_ID
-const alchemyId = process.env.ALCHEMY_ID
+const infuraId = process.env.INFURA_ID ?? ''
+const alchemyId = process.env.ALCHEMY_ID ?? ''
 const config: HardhatUserConfig = {
   defaultNetwork,
-
-  // don't forget to set your provider like:
-  // REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
-  // (then your frontend will talk to your contracts on the live network!)
 
   paths: {
     sources: 'src',
@@ -95,7 +102,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
     },
     gnosis: {
-      url: 'https://rpc.gnosischain.com/',
+      url: 'https://rpc.gnosischain.com',
       accounts: { mnemonic },
       gasMultiplier,
     },
@@ -105,6 +112,10 @@ const config: HardhatUserConfig = {
       gasMultiplier,
     },
     mumbai: {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${alchemyId}`,
+      accounts: { mnemonic },
+    },
+    dysMumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${alchemyId}`,
       accounts: { mnemonic },
     },
@@ -126,6 +137,24 @@ const config: HardhatUserConfig = {
     outDir: '../ui/contracts/types/',
   },
 }
+
+const networkConfig = (
+  config?.networks?.[defaultNetwork ?? ''] as HttpNetworkUserConfig
+)
+if(networkConfig?.url?.endsWith('/')) {
+  console.warn(`${defaultNetwork} network URL ends with '/', probably missing a provider id.`)
+}
+
+if(
+  networkConfig.url
+  === (config?.networks?.mumbai as HttpNetworkUserConfig)?.url
+  && !apiKey.polygonMumbai
+) {
+  throw new Error(
+    'For validation on Mumbai, `apiKey.polygonMumbai` must be set.'
+  )
+}
+
 
 export default config
 

@@ -2,6 +2,7 @@
   "name": "@chievemints/contracts",
   "version": "0.1.0",
   "main": "index.js",
+  "type": "module",
   "license": "CC0-1.0",
   "devDependencies": {
     "@ethersproject/abi": "^5",

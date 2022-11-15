@@ -12,6 +12,11 @@ const initializerArgs = ['MetaGame ’Chievemints', 'MG’s 🏆s']
 const chain = (
   process.env.HARDHAT_NETWORK ?? config.defaultNetwork
 )
+const onPolygon = /(polygon|mumbai)/i.test(chain)
+
+const networks = await run('verify:list-networks')
+console.info({ networks })
+process.exit(1)
 
 const fileTemplates = {
   address: `artifacts/${network.name}/{contract}.address`,
@@ -124,7 +129,8 @@ const deploy = async ({
       )
       if(!done) {
         console.info(
-          ` ${chalk.hex('#FF0606')(loops.toString())}:`
+          ` 🔁 ${chalk.hex('#FF0606')(loops.toString())}`
+          + `/${chalk.hex('#BB0606')(maxLoops.toString())}:`
           + ' No new implmentation found at'
           + ` ${chalk.hex('#FFF013')(deployed)};`
           + ` sleeping ${timeout / 1000}s`
@@ -159,7 +165,7 @@ const deploy = async ({
     )
     gasInfo = (
       `${utils.formatEther(gasUsed)} `
-      + (network.name === 'polygon' ? 'MATIC' : 'ETH')
+      + (onPolygon ? 'MATIC' : 'ETH')
     )
   }
 
@@ -196,11 +202,11 @@ const main = async () => {
   )
   try {
     const examiner = (
-      `${['polygon', 'mumbai'].includes(chain) ? 'Polygon' : 'Ether'}scan`
+      `${onPolygon ? 'Polygon' : 'Ether'}scan`
     )
     const timeout = 20
-    console.log(`Waiting ${timeout} seconds for ${examiner}`)
-    await new Promise((accept) => setTimeout(accept, timeout * 1000))
+    console.log(` ⏱ Waiting ${chalk.hex('#FFF818')(timeout)} seconds for ${examiner}`)
+    await sleep(timeout * 1000)
     console.log(chalk.hex('#FFD25E')(
       `\n 🔍 Verifying ${chalk.hex('#8454FF')(implementationAddress)}`
       + ` on ${examiner}…\n`
@@ -219,7 +225,7 @@ const main = async () => {
   }
   console.log(
     '\n 💾  Artifacts (address, abi, and args) saved to:'
-    + ` ${chalk.hex('#87FF37')(saveDir)}\n\n`
+    + ` ${chalk.hex('#87FF37')(saveDir)}\n`
   )
 }
 
