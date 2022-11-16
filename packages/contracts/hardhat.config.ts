@@ -89,7 +89,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
     },
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${infuraId}`,
+      url: `https://eth-mainnet.g.alchemy.com/v2/${alchemyId}`,
       accounts: { mnemonic },
       gasMultiplier,
     },
@@ -290,14 +290,18 @@ task('grant', 'Grant a role')
   )
 
   const roleId = await rolesLibrary.roleIndexForName(role)
-  if(roleId === 0) throw new Error(`Can’t find “${role}”`)
+  if(roleId === 0) throw new Error(`Can’t find “${role}” (must be capitalized).`)
   let tx 
   if(token) {
     tx = await contract['grantRole(uint8,address,uint256,bool)'](roleId, user, token, !!args.singleUse)
   } else {
     tx = await contract['grantRole(uint8,address,bool)'](roleId, user, !!args.singleUse)
   }
-  console.log({p: tx.gasLimit.toBigInt() * tx.gasPrice.toBigInt()})
+  const gas = {
+    limit: tx.gasLimit.toBigInt() as bigint,
+    price: tx.gasPrice.toBigInt() as bigint,
+  }
+  console.log(` ⛽ ${Number((gas.limit * gas.price) / 10n**10n) / 10**8}`)
   console.info(` 🕋 Tx: ${tx.hash}`)
 })
 

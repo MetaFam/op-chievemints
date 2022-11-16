@@ -7,6 +7,11 @@ declare const POLYGON_RPC: string
 declare const MUMBAI_RPC: string
 declare const LOCAL_RPC: string
 
+// Using Object.keys(NETWORKS) results in infinite recursion
+const networks = [
+  'mainnet', 'gnosis', 'polygon', 'mumbai', 'localhost'
+]
+
 export const NETWORKS: NetworkInfo = {
   mainnet: {
     chainId: 1,
@@ -70,6 +75,14 @@ export const NETWORKS: NetworkInfo = {
     )),
   },
   get contract() {
-    return this[contractNetwork]
+    let net = this[contractNetwork]
+    if(!net) {
+      networks.forEach((name) => {
+        if(contractNetwork.toLowerCase().includes(name)) {
+          net = this[name]
+        }
+      })
+    }
+    return net
   },
 }

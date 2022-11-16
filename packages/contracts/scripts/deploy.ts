@@ -14,10 +14,6 @@ const chain = (
 )
 const onPolygon = /(polygon|mumbai)/i.test(chain)
 
-const networks = await run('verify:list-networks')
-console.info({ networks })
-process.exit(1)
-
 const fileTemplates = {
   address: `artifacts/${network.name}/{contract}.address`,
   args: `artifacts/${network.name}/{contract}.args`,
@@ -205,7 +201,7 @@ const main = async () => {
       `${onPolygon ? 'Polygon' : 'Ether'}scan`
     )
     const timeout = 20
-    console.log(` ⏱ Waiting ${chalk.hex('#FFF818')(timeout)} seconds for ${examiner}`)
+    console.log(` ⏱  Waiting ${chalk.hex('#FFF818')(timeout)} seconds for ${examiner}`)
     await sleep(timeout * 1000)
     console.log(chalk.hex('#FFD25E')(
       `\n 🔍 Verifying ${chalk.hex('#8454FF')(implementationAddress)}`
