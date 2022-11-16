@@ -25,19 +25,20 @@ export const OptionsForm: React.FC<{
   metadata?: Maybe<ERC1155Metadata>
   metaURI?: string
 }> = ({
-  purpose = 'create', tokenId,
+  purpose = 'create',
+  tokenId,
+  metadata: incomingData,
+  metaURI: incomingURI,
 }) => {
-  const { rwContract } = useWeb3()
-  const navigate = useNavigate()
-  const {
-    register, handleSubmit, watch, setValue,
-    formState: {
-      isSubmitting: processing, isDirty: dirty,
-    },
-  } = useForm()
   const FIELD_FORM = 0
   const URI_FORM = 1
   const JSON5_FORM = 2
+  const { rwContract } = useWeb3()
+  const navigate = useNavigate()
+  const {
+    register, handleSubmit, watch, setValue: setValue,
+    formState: { isSubmitting: processing },
+  } = useForm()
   const [tab, setTab] = useState(FIELD_FORM)
   const toast = useToast()
   const { storage } = useConfig()
@@ -46,44 +47,12 @@ export const OptionsForm: React.FC<{
   const uri = watch('uri')
 
   useEffect(() => {
-    setValue('uri', uri)
-  }, [uri, setValue])
+    if(purpose === 'update') {
+      setValue('metadata', incomingData)
+    }
+  }, [setValue, purpose, incomingData])
 
-  const configure = useCallback(
-    async ({ metadata }: { metadata: string } ) => {
-      if(!rwContract) {
-        throw new Error(
-          `Cannot connect to contract to ${purpose} metadata.`
-        )
-      }
-      if(tokenId == null) {
-        throw new Error('Token id is unset.')
-      }
-
-      try {
-        const tx = await rwContract.setURI(
-          BigInt(tokenId), metadata
-        )
-        await tx.wait()
-
-        if(metadata !== '') {
-          navigate(`/view/${regexify(tokenId)}`)
-        }
-      } catch(error) {
-        console.error({ error })
-        toast({
-          title: 'Contract Error',
-          description: extractMessage(error),
-          status: 'error',
-          isClosable: true,
-          duration: 10000
-        })
-      }
-    },
-    [rwContract, tokenId, purpose, navigate, toast],
-  )
-
-  const buildMeta = async (data: FormValues) => {
+  const buildMeta = useCallback(async (data: FormValues) => {
     const {
       name, description, homepage, color,
       images, animation, attributes,
@@ -137,9 +106,43 @@ export const OptionsForm: React.FC<{
     }
 
     return metadata
-  }
+  }, [storage])
 
-  const submit = async (data: FormValues) => {
+  const configure = useCallback(
+    async ({ metadata }: { metadata: string } ) => {
+      if(!rwContract) {
+        throw new Error(
+          `Cannot connect to contract to ${purpose} metadata.`
+        )
+      }
+      if(tokenId == null) {
+        throw new Error('Token id is unset.')
+      }
+
+      try {
+        const tx = await rwContract.setURI(
+          BigInt(tokenId), metadata
+        )
+        await tx.wait()
+
+        if(metadata !== '') {
+          navigate(`/view/${regexify(tokenId)}`)
+        }
+      } catch(error) {
+        console.error({ error })
+        toast({
+          title: 'Contract Error',
+          description: extractMessage(error),
+          status: 'error',
+          isClosable: true,
+          duration: 10000
+        })
+      }
+    },
+    [rwContract, tokenId, purpose, navigate, toast],
+  )
+
+  const submit = useCallback(async (data: FormValues) => {
     try {
       const name = `metadata.${(new Date()).toISOString()}.json`
       let metadata = await (async () => {
@@ -168,6 +171,7 @@ export const OptionsForm: React.FC<{
           }
         }
       })()
+
       if(metadata == null) {
         throw new Error(`Metadata is \`${JSON5.stringify(metadata)}\`.`)
       } else if(metadata !== '') {
@@ -184,7 +188,7 @@ export const OptionsForm: React.FC<{
         duration: 10000
       })
     }
-  }
+  }, [buildMeta, configure, storage, tab, toast])
 
   return (
     <Stack align="center">
@@ -204,18 +208,32 @@ export const OptionsForm: React.FC<{
                 let metadata
                 switch(tab) {
                   case URI_FORM: {
-                    const res = await fetch(uri)
-                    metadata = JSON5.parse(
-                      await res.text()
-                    )
+                    if(uri && uri !== '') {
+                      const res = await fetch(uri)
+                      metadata = JSON5.parse(
+                        await res.text()
+                      )
+                    }
                     break
                   }
                   case JSON5_FORM: {
-                    metadata = JSON5.parse(json5)
+                    if(json5 && json5 !== '') {
+                      metadata = JSON5.parse(json5)
+                    }
                     break
                   }
                 }
-                await configure({ metadata })
+                if(metadata) {
+                  await configure({ metadata })
+                } else {
+                  toast({
+                    title: 'Metadata Warning',
+                    description: 'No metadata specified.',
+                    status: 'warning',
+                    isClosable: true,
+                    duration: 10000
+                  })
+                }
                 break
               }
               case URI_FORM: {

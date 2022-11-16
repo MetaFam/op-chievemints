@@ -186,7 +186,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
     )
 
     const connect = useCallback(async () => {
-      if (web3Modal == null) {
+      if(web3Modal == null) {
         throw new Error(`Web3Modal is ${web3Modal}`)
       }
 
@@ -202,7 +202,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
         prov.on('chainChanged', () => {
           update(prov)
         })
-      } catch (error) {
+      } catch(error) {
         console.error('`connect` Error', error) // eslint-disable-line no-console
         disconnect()
       } finally {
@@ -211,7 +211,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
     }, [disconnect, update, web3Modal])
 
     useEffect(() => {
-      if (web3Modal?.cachedProvider) {
+      if(web3Modal?.cachedProvider) {
         connect()
       }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -234,7 +234,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
       }
 
       libs()
-    }, [userProvider])
+    }, [abi, contractAddress, userProvider])
 
     useEffect(() => {
       const libs = async () => {

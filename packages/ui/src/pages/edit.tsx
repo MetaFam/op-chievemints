@@ -1,7 +1,9 @@
 import React, {
   ReactNode, useEffect, useMemo, useState,
 } from 'react'
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/react'
+import {
+  Alert, AlertDescription, AlertIcon, AlertTitle, Box, Spinner,
+} from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import JSON5 from 'json5'
@@ -27,18 +29,20 @@ export const Edit = () => {
           const metaURI = await roContract.uri(tokenId)
           const url = httpURL(metaURI)
           if(!metaURI || metaURI === '') {
-            setMetadata(null)
+            throw new Error('No metadata URI.')
           } else {
             const response = await fetch(url)
             const body = await response.text()
             try {
-              setMetaURI(metaURI)
               setMetadata(JSON5.parse(body))
+              setMetaURI(metaURI)
             } catch(error) {
               console.error({ url, tokenId, metaURI, error, body })
+              throw error
             }
           }
         } catch(err) {
+          setMetadata(null)
           setError(extractMessage(err))
         }
       }
@@ -60,10 +64,14 @@ export const Edit = () => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <OptionsForm
-        purpose="update"
-        {...{ tokenId, metadata, metaURI }}
-      />
+      {metadata === undefined ? (
+        <Box><Spinner/> Loading {metaURI}…</Box>
+      ) : (
+        <OptionsForm
+          purpose="update"
+          {...{ tokenId, metadata, metaURI }}
+        />
+      )}
     </Box>
   )
 }
