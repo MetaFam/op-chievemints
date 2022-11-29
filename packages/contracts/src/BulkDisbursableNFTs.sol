@@ -624,10 +624,6 @@ contract BulkDisbursableNFTs is
     virtual
     returns (bool minted)
   {
-    require(
-      id & Bits.INTERNAL_MASK != Bits.INTERNAL_MASK,
-      "Cannot mint internal tokens from outside."
-    );
     if((id & Bits.UNIQUE) == Bits.UNIQUE && balanceOf(recipient, id) > 0) {
       return false;
     }

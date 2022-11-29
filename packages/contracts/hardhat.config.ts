@@ -107,7 +107,8 @@ const config: HardhatUserConfig = {
       gasMultiplier,
     },
     polygon: {
-      url: 'https://polygon-rpc.com',
+      // url: 'https://polygon-rpc.com',
+      url: `https://polygon-mainnet.g.alchemy.com/v2/${alchemyId}`,
       accounts: { mnemonic },
       gasMultiplier,
     },

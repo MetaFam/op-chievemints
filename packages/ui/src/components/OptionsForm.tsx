@@ -118,7 +118,9 @@ export const OptionsForm: React.FC<{
       if(tokenId == null) {
         throw new Error('Token id is unset.')
       }
-
+      if(metadata == null) {
+      throw new Error ('metadata is unset.')
+      }
       try {
         const tx = await rwContract.setURI(
           BigInt(tokenId), metadata
@@ -175,7 +177,9 @@ export const OptionsForm: React.FC<{
       if(metadata == null) {
         throw new Error(`Metadata is \`${JSON5.stringify(metadata)}\`.`)
       } else if(metadata !== '') {
+        console.log({metadata})
         metadata = await ipfsify({ filesOrURL: metadata, storage })
+        console.log({metadata})
       }
       await configure({ metadata })
     } catch(error) {
