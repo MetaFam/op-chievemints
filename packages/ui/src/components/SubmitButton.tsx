@@ -31,12 +31,10 @@ export const SubmitButton: React.FC<ButtonProps & {
   const desiredNetwork = (
     offChain ? NETWORKS.contract.name : null
   )
-  const { Settings, storage } = useConfig({ requireStorage })
+  const { Settings, storage, onOpen: openSettings } = useConfig({ requireStorage })
 
   return <>
-    {(rwContract && requireStorage && !storage) && (
-      <Settings highlight={['nftStorageAPIToken']}/>
-    )}
+    <Settings highlight={['nftStorageAPIToken']}/>
     <Button
       type="submit"
       variant="solid"
@@ -57,6 +55,8 @@ export const SubmitButton: React.FC<ButtonProps & {
           } else if(offChain) {
             evt.preventDefault()
             switchTo(NETWORKS.contract.chainId)
+          } else if(!storage && requireStorage) {
+            openSettings()
           } else {
             onClick?.apply(null, [evt])
           }

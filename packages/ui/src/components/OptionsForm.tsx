@@ -119,7 +119,7 @@ export const OptionsForm: React.FC<{
         throw new Error('Token id is unset.')
       }
       if(metadata == null) {
-      throw new Error ('metadata is unset.')
+        throw new Error ('metadata is unset.')
       }
       try {
         const tx = await rwContract.setURI(

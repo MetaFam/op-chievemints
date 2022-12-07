@@ -114,12 +114,6 @@ export const useConfig = ({ requireStorage = false } = {}) => {
   ), [nftStorageAPIToken])
 
   const { isOpen, onOpen, onClose } = useDisclosure()
-  useMemo(() => {
-    if(!isOpen && !nftStorageAPIToken){
-    console.log('LOOKY HERE!!!')
-    onOpen()
-  }
-  }, [isOpen, storage, nftStorageAPIToken, requireStorage])
 
   const Settings: React.FC<{ highlight: Array<string> }> = (
     useCallback(({ highlight }) => (
@@ -138,7 +132,7 @@ export const useConfig = ({ requireStorage = false } = {}) => {
                 <Link target="_blank" href="//nft.storage" mr={1}>
                   NFT.Storage
                 </Link>
-                API Token
+                API Token {requireStorage}
                 <Text as="span" color="red" fontSize="120%">
                   *
                 </Text>
@@ -216,6 +210,8 @@ export const useConfig = ({ requireStorage = false } = {}) => {
   const settings = useMemo(() => ({
     Settings,
     storage,
+    onOpen,
+    isOpen,
   }), [Settings, storage])
 
   return settings

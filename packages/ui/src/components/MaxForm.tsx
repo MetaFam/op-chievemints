@@ -96,6 +96,7 @@ export const MaxForm = (
       <SubmitButton
         label={`Set ${perUser ? 'Per User': ''} Max`}
         disabled={!/^-?\d+$/.test(max)}
+        requireStorage={false}
         {...{ purpose, processing, ...props }}
       />
     </Flex>
