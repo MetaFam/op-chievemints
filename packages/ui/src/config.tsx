@@ -29,7 +29,7 @@ export const ipfsLinkPattern = (
     (typeof IPFS_LINK_PATTERN !== 'undefined') ? (
       IPFS_LINK_PATTERN
     ) : (
-      'https://{v1cid}.ipfs.nftstorage.link/{path}'
+      'https://nftstorage.link/{protocol}/{v1cid}/{path}'
     )
   )
 )

@@ -10,8 +10,8 @@ import JSON5 from 'json5'
 import { NFTStorage } from 'nft.storage'
 
 export const httpURL = (uri?: Maybe<string>) => {
-  const [, origCID, path] = (
-    uri?.match(/^(?:ipfs|dweb):(?:\/\/)?([^/]+)(?:\/(.*))?$/) ?? []
+  const [, protocol, origCID, path] = (
+    uri?.match(/^(ip[nf]s):(?:\/\/)?([^/]+)(?:\/(.*))?$/) ?? []
   )
 
   if(origCID) {
@@ -22,6 +22,7 @@ export const httpURL = (uri?: Maybe<string>) => {
     return (
       encodeURI(
         pattern
+        .replace(/{protocol}/g, protocol)
         .replace(/{cid}/g, origCID)
         .replace(/{v0cid}/g, v0CID)
         .replace(/{v1cid}/g, v1CID)

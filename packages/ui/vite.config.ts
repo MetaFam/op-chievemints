@@ -34,7 +34,9 @@ export default defineConfig(
         target: ['ES2020'],
         minify: false,
         sourcemap: true,
-        polyfillModulePreload: false,
+        modulePreload: {
+          polyfill: false,
+        },
         commonjsOptions: {
           // exclude: [/tslib/],
           include: [/node_modules/],
