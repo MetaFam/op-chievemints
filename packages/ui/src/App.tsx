@@ -44,7 +44,7 @@ const App: React.FC = () => (
       <Helmet>
         <link
           rel="shortcut icon"
-          href="favicon.png"
+          href="favicon.svg"
         />
         <meta
           name="viewport"
