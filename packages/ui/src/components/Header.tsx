@@ -1,29 +1,30 @@
-import { Flex, FlexProps, Tooltip } from '@chakra-ui/react'
 import { LinkedSVG } from '@/components'
-import React from 'react'
+import React, { HTMLAttributes } from 'react'
+import Tippy from '@tippyjs/react'
+import Hs from '../styles/Header.module.css'
 
 export const Header: React.FC<
-  FlexProps & { links?: Record<'cup' | 'sign', string> }
+  HTMLAttributes<HTMLDivElement>
+  & { links?: Record<'cup' | 'sign', string> }
 > = ({ links = { cup: '/new', sign: '/' }, ...props }) => (
-  <Flex  grow={1} {...props}>
-    <Tooltip hasArrow label="Create A New Token Type">
+  <header id={Hs.style} {...props}>
+    <Tippy content="Create A New Token Type">
       <LinkedSVG
-        w="min(40%, 75vh)" h="auto"
+        id={Hs.cup}
+        className="link"
         svg="logo.svg"
         href={links.cup}
-        title="Create a new Token"
       />
-    </Tooltip>
-    <Tooltip hasArrow label="List Existing Tokens">
+    </Tippy>
+    <Tippy content="List Existing Tokens">
       <LinkedSVG
-        w="75%" h="auto"
-        ml="-15%"
+        id={Hs.sign}
+        className="link"
         svg="header.svg"
         href={links.sign}
-        title="View Existing Tokens"
       />
-    </Tooltip>
-  </Flex>
+    </Tippy>
+  </header>
 )
 
 export default Header

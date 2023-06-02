@@ -1,12 +1,9 @@
-import {
-  FormControl, FormLabel, Input, InputGroup,
-  Modal, ModalBody, ModalCloseButton, Link,
-  ModalContent, ModalHeader, ModalOverlay,
-  useDisclosure, Text, ModalFooter, Stack, Flex, Button,
-} from '@chakra-ui/react'
 import { NFTStorage } from 'nft.storage'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, {
+  useCallback, useMemo, useRef, useState, forwardRef,
+} from 'react'
 import { Maybe } from './lib/types'
+import cs from './styles/config.module.css'
 
 declare const CHAIN_NAME: string
 declare const IPFS_LINK_PATTERN: string
@@ -15,42 +12,42 @@ declare const NFT_GRAPH: string
 declare const NFT_BASE: string
 
 export const contractNetwork = (
-  (
-    (typeof CHAIN_NAME !== 'undefined') ? (
-      CHAIN_NAME
-    ) : (
-      'polygon'
-    )
+  (typeof CHAIN_NAME !== 'undefined') ? (
+    CHAIN_NAME
+  ) : (
+    'polygon'
   )
 )
 
 export const ipfsLinkPattern = (
-    (
-    (typeof IPFS_LINK_PATTERN !== 'undefined') ? (
-      IPFS_LINK_PATTERN
-    ) : (
-      'https://nftstorage.link/{protocol}/{v1cid}/{path}'
-    )
+  (typeof IPFS_LINK_PATTERN !== 'undefined') ? (
+    IPFS_LINK_PATTERN
+  ) : (
+    'https://nftstorage.link/{protocol}/{v1cid}/{path}'
   )
 )
 
 export const nftGraph = (
-  (
-    (typeof NFT_GRAPH !== 'undefined') ? (
-      NFT_GRAPH
-    ) : (
-      'https://api.thegraph.com/subgraphs/name/alberthaotan/nft-matic'
-    )
+  (typeof NFT_GRAPH !== 'undefined') ? (
+    NFT_GRAPH
+  ) : (
+    'https://api.thegraph.com/subgraphs/name/alberthaotan/nft-matic'
   )
 )
 
 export const nftBase = (
-  (
-    (typeof NFT_BASE !== 'undefined') ? (
-      NFT_BASE
-    ) : (
-      'https://chiev.es/#/view'
-    )
+  (typeof NFT_BASE !== 'undefined') ? (
+    NFT_BASE
+  ) : (
+    'https://chiev.es/#/view'
+  )
+)
+
+export const envNFTStorageAPIToken = (
+  (typeof NFT_STORAGE_API_TOKEN !== 'undefined') ? (
+    NFT_STORAGE_API_TOKEN
+  ) : (
+    null
   )
 )
 
@@ -80,139 +77,109 @@ export const defaults = {
   visible: '',
 }
 
+export const Settings = forwardRef<
+  HTMLDialogElement,
+  {
+    nftStorageAPIToken?: string
+    setNFTStorageAPIToken?: (token: Maybe<string>) => void
+  }
+>(({
+  nftStorageAPIToken: apiToken,
+  setNFTStorageAPIToken: setAPIToken,
+}, ref) => {
+  const [internalAPIToken, setInternalAPIToken] = (
+    useState(apiToken ?? '')
+  )
+
+  return (
+    <dialog {...{ ref }} id={cs.style}>
+      <form
+        onSubmit={() => {
+          setAPIToken(internalAPIToken)
+        }}
+      >
+        <header>
+          <h2>Settings</h2>
+        </header>
+        <main>
+          <label>
+            <h3>
+              <a
+                target="_blank"
+                href="//nft.storage"
+                rel="noreferrer"
+              >
+                NFT.Storage
+              </a>
+              API Token
+              <span>*</span>
+            </h3>
+            <input
+              placeholder="Required Token"
+              type="password"
+              autoComplete="off"
+              value={internalAPIToken}
+              onChange={({ target: { value } }) => {
+                setInternalAPIToken(value)
+              }}
+            />
+          </label>
+        </main>
+        <footer>
+          <button formMethod="dialog">Cancel</button>
+          <button>Save</button>
+        </footer>
+      </form>
+    </dialog>
+  )
+})
+Settings.displayName = 'Settings'
+
 export const useConfig = ({ requireStorage = false } = {}) => {
+  const host = window.location.host
+  const key = `chievemints-${host}-nftStorageAPIToken`
   const store = localStorage
   const [nftStorageAPIToken, baseSetNFTStorageAPIToken] = (
     useState(
-      store.getItem('chievemints-nftStorageAPIToken')
-      ?? (typeof NFT_STORAGE_API_TOKEN !== 'undefined' ? (
-        NFT_STORAGE_API_TOKEN
-      ) : (
-        null
-      ))
+      envNFTStorageAPIToken
+      ?? store.getItem(key)
+      ?? null
     )
   )
   const setNFTStorageAPIToken = useCallback(
     (token: Maybe<string>) => {
-      store.setItem('chievemints-nftStorageAPIToken', token)
+      store.setItem(key, token)
       baseSetNFTStorageAPIToken(token)
     },
-    [store],
+    [key, store],
   )
-  const [
-    internalNFTStorageAPIToken,
-    internalSetNFTStorageAPIToken
-  ] = (
-    useState(nftStorageAPIToken)
-  )
-  const storage = useMemo(() => (
-    nftStorageAPIToken ? (
-      new NFTStorage({ token: nftStorageAPIToken })
-    ) : (
-      null
-    )
-  ), [nftStorageAPIToken])
-
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const Settings: React.FC<{ highlight: Array<string> }> = (
-    useCallback(({ highlight }) => (
-      <Modal {...{ isOpen, onClose }}>
-        <ModalOverlay/>
-        <ModalContent>
-          <ModalHeader>Settings</ModalHeader>
-          <ModalCloseButton/>
-          <ModalBody
-            sx={{
-              a: { borderBottom: '1px dashed' },
-            }}
-          >
-            <FormControl mb={3}>
-              <FormLabel>
-                <Link target="_blank" href="//nft.storage" mr={1}>
-                  NFT.Storage
-                </Link>
-                API Token {requireStorage}
-                <Text as="span" color="red" fontSize="120%">
-                  *
-                </Text>
-              </FormLabel>
-              <InputGroup>
-                <Input
-                  placeholder="Required Token"
-                  type="password"
-                  bg={highlight.includes('nftStorageAPIToken') ? (
-                    '#FFFF0066'
-                  ) : (
-                    'transparent'
-                  )}
-                  value={internalNFTStorageAPIToken}
-                  onChange={({ target: { value } }) => {
-                    internalSetNFTStorageAPIToken(value)
-                  }}
-                />
-              </InputGroup>
-            </FormControl>
-          </ModalBody>
-
-          <ModalFooter>
-            <Stack w="full">
-              {/* <Flex mb={5}>
-                <Button 
-                  colorScheme="blue"
-                  mr={3}
-                  onClick={() => {
-                    setGw('http://{v1cid}.ipfs.localhost:8080/{path}')
-                    setDelay(0)
-                  }}
-                >
-                  Use <chakra.code ml={2}>localhost</chakra.code>
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  onClick={() => {
-                    setGw(ipfsLinkPattern)
-                    setDelay(Number(ipfsLimitingDelay))
-                  }}
-                >
-                  Use Defaults
-                </Button>
-              </Flex> */}
-
-              <Flex alignSelf="end">
-                <Button
-                  colorScheme="red"
-                  mr={3}
-                  onClick={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  colorScheme="green"
-                  mr={3}
-                  onClick={() => {
-                    setNFTStorageAPIToken(
-                      internalNFTStorageAPIToken
-                    )
-                    onClose()
-                  }}
-                >
-                  Save
-                </Button>
-              </Flex>
-            </Stack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    ), [internalNFTStorageAPIToken, isOpen, onClose, setNFTStorageAPIToken])
+  const dialog = useRef(null)
+  const storage = useMemo(() => {
+    const token = nftStorageAPIToken
+    return token ? new NFTStorage({ token }) : null
+  }, [nftStorageAPIToken])
+  const openSettings = useCallback(() => {
+    if(!dialog.current) {
+      console.error({ openSettings: 'dialog.current is null' })
+    } else {
+      dialog.current.showModal()
+    }
+  }, [dialog])
+  const SettingsDialog: React.FC = useCallback(
+    () => (
+      <Settings
+        ref={dialog}
+        {...{
+          nftStorageAPIToken,
+          setNFTStorageAPIToken
+        }}
+      />
+    ), [nftStorageAPIToken, setNFTStorageAPIToken]
   )
 
-  const settings = useMemo(() => ({
-    Settings,
+  return useMemo(() => ({
     storage,
-    onOpen,
-    isOpen,
-  }), [Settings, storage])
-
-  return settings
+    openSettings,
+    Settings: SettingsDialog,
+  }), [storage, openSettings, SettingsDialog])
 }

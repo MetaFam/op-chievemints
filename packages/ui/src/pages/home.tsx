@@ -4,8 +4,12 @@ import React, {
 import {
   extractMessage, httpURL, toSpanList,
 } from '@/lib/helpers'
-import { HiddenError, Limits, Maybe, TokenState } from '@/lib/types'
-import { Header, TokenFilterForm, TokensTable } from '@/components'
+import {
+  HiddenError, Limits, Maybe, TokenState,
+} from '@/lib/types'
+import {
+  Header, TokenFilterForm, TokensTable,
+} from '@/components'
 import { useWeb3 } from '@/lib/hooks'
 import { Helmet } from 'react-helmet'
 import {
@@ -13,9 +17,7 @@ import {
 } from 'react-router-dom'
 import JSON5 from 'json5'
 import { defaults } from '@/config'
-import {
-  chakra, Button, Container, Flex, Text, Stack,
-} from '@chakra-ui/react'
+import '../styles/home.css'
 
 const Home = () => {
   const [tokens, setTokens] = useState<Array<TokenState | Error>>([])
@@ -31,6 +33,7 @@ const Home = () => {
   )
   const navigate = useNavigate()
   const { roContract, bitsLibrary } = useWeb3()
+
   const setToken = useCallback(
     (idx: number, info: Record<string, unknown>) => {
       let token
@@ -264,67 +267,58 @@ const Home = () => {
   ])
 
   return (
-    <Container maxW="full">
+    <>
       <Helmet>
         <title>𝔐𝔢𝔱𝔞𝔊𝔞𝔪𝔢’𝔰 ’𝘾𝙝𝙞𝙚𝙫𝙚𝙢𝙞𝙣𝙩𝙨</title>
-        <meta
+        <meta 
           name="description"
           content="MetaGame’s ’Chievemint NFTs"
         />
       </Helmet>
 
-      <chakra.header h="45vh">
-        <Flex maxW="40rem" margin="auto">
-          <Header mt="5vh" h="40vh"/>
-        </Flex>
-      </chakra.header>
+      <Header/>
 
-      <chakra.main>
-        <Stack align="center">
-          <TokenFilterForm
-            flexGrow={1}
-            {...{
-              limit, setLimit,
-              offset, setOffset,
-              gatingVisible, setGatingVisible,
-              visibleList, setVisibleList,
-            }}
-          />
-          <TokensTable {...{ tokens }}/>
-          <Flex justify="center">
-            <Button
-              onClick={() => {
-                if(visibleList.length > 0) {
-                  const potentials = visibleList.map(
-                    (entry) => ((entry as Limits)?.high ?? entry) as number
-                  )
-                  const max = Math.max(...potentials)
-                  setVisibleList((vis) => ([
-                    ...vis, { low: max, high: max + 10 }
-                  ]))
-                } else {
-                  setLimit((lim) => lim + 10)
-                }
-              }}
-            >
-              <Text as="span" mr={1} mt={-0.5} fontSize="150%" fontWeight="bold">+</Text>10
-            </Button>
-            <Button
-              ml={5}
-              onClick={() => setOffset((off) => off + limit)}
-            >
-              <Text as="span" mr={0.75} mt={-1} fontSize="200%" fontWeight="bold">↓</Text>{limit}
-            </Button>
-            <Button
-              ml={5}
-              onClick={() => setOffset((off) => off - limit)}
-            >
-              <Text as="span" mr={0.75} mt={-1} fontSize="200%" fontWeight="bold">↑</Text>{limit}
-            </Button>
-          </Flex>
-        </Stack>
-      </chakra.main>
-    </Container>
+      <main>
+        <TokenFilterForm
+          {...{
+            limit, setLimit,
+            offset, setOffset,
+            gatingVisible, setGatingVisible,
+            visibleList, setVisibleList,
+          }}
+        />
+        <TokensTable {...{ tokens }}/>
+      </main>
+      <footer>
+        <button
+          onClick={() => {
+            if(visibleList.length > 0) {
+              const potentials = visibleList.map(
+                (entry) => ((entry as Limits)?.high ?? entry) as number
+              )
+              const max = Math.max(...potentials)
+              setVisibleList((vis) => (
+                [...vis, { low: max, high: max + 10 }]
+              ))
+            } else {
+              setLimit((lim) => lim + 10)
+            }
+          }}
+        >
+          <span className="bigNBold">+</span>10
+        </button>
+        <button
+          onClick={() => setOffset((off) => off + limit)}
+        >
+          <span className="biggerNBold">↓</span>{limit}
+        </button>
+        <button
+          onClick={() => setOffset((off) => off - limit)}
+        >
+          <span className="biggerNBold">↑</span>{limit}
+        </button>
+      </footer>
+    </>
   )
 }
 

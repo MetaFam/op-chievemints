@@ -1,8 +1,3 @@
-import {
-  Center, Flex, Heading, Spinner, Text, chakra,
-  Stack, Container, useToast, Table, Thead, Th, Tr,
-  Tbody, Td, Checkbox, Input, Tooltip,
-} from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Event } from 'ethers'
 import { useForm } from 'react-hook-form'
@@ -12,21 +7,19 @@ import { OptionsForm, Header, SubmitButton } from '@/components'
 import { useWeb3 } from '@/lib/hooks'
 import { extractMessage } from '@/lib/helpers'
 import { rolePermissions, tokenPermissions } from '@/config'
+import { CircleLoader } from 'react-spinners'
+import Tippy from '@tippyjs/react'
+import { toast } from 'react-toastify'
+import ns from '../styles/new.module.css'
 
 export const New = () => (
-  <Container maxW="full">
+  <section>
     <Helmet>
       <title>’𝖈𝖍𝖎𝖊𝖛𝖊: Ⲛⲉⲱ Ⲧⲟⲕⲉⲛ</title>
     </Helmet>
-    <chakra.header>
-      <Flex justify="center">
-        <Header my="7vh" maxW="xl"/>
-      </Flex>
-    </chakra.header>
-    <chakra.main>
-      <Content/>
-    </chakra.main>
-  </Container>
+    <Header/>
+    <Content/>
+  </section>
 )
 
 const Content: React.FC = () => {
@@ -44,7 +37,6 @@ const Content: React.FC = () => {
   )
   const [working, setWorking] = useState(false)
   const { register, handleSubmit } = useForm()
-  const toast = useToast()
 
   useEffect(() => {
     if(typeof id === 'string') {
@@ -135,104 +127,92 @@ const Content: React.FC = () => {
       const [id] = event.args
       setTokenId(id.toHexString())
     } catch(error) {
-      toast({
-        title: 'Creation Error',
-        description: extractMessage(error),
-        status: 'error',
-        isClosable: true,
-        duration: 10000
-      })
+      toast.error(extractMessage(error))
       console.error((error as Error).stack)
     } finally {
       setWorking(false)
     }
-  }, [address, ensProvider, rolesLibrary, rwContract, toast])
+  }, [address, ensProvider, rolesLibrary, rwContract])
 
   if(!rwContract || !tokenId || working) {
     return (
-      <Center>
-        <Stack>
-          <Heading textAlign="center">
-            Create a New Token Type
-          </Heading>
-          {(() => {
-            if(connecting) {
-              return (
-                <Flex justify="center">
-                  <Spinner thickness="4px"/>
-                  <Text ml={2}>Connecting…</Text>
-                </Flex>
-              )
-            }
-            if(working) {
-              return (
-                <Flex justify="center" mt={7}>
-                  <Spinner/>
-                  <Text ml={2}>Reserving your token…</Text>
-                </Flex>
-              )
-            }
-            if(!tokenId) {
-              return (
-                <Stack
-                  as="form"
-                  onSubmit={handleSubmit(reserve)}
-                >
-                  <Flex align="center">
-                    <chakra.label mr={3}>Admin:</chakra.label>
-                    <Input
-                      {...register('maintainer')}
-                      placeholder="Maintainer Address (default Creator)"
-                    />
-                  </Flex>
-                  <Table mb={5}>
-                    <Thead>
-                      <Tr>
-                        <Th>Role</Th>
-                        <Th>
-                          <Tooltip label="Give the admin these roles:">
-                            Grant
-                          </Tooltip>
-                        </Th>
-                        <Th>
-                          <Tooltip label="Prevent these permissions from being checked:">
-                            Disable
-                          </Tooltip>
-                        </Th>
-                        <Th>Description</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {roles.map((role, idx) => (
-                        <Tr key={idx}>
-                          <Td>{role}</Td>
-                          <Td textAlign="center">
-                            <Checkbox {...register(`grant(${role})`)}/>
-                          </Td>
-                          <Td textAlign="center">
-                            <Checkbox {...register(`disable(${role})`)}/>
-                          </Td>
-                          <Td>
-                            {rolePermissions[role as keyof typeof rolePermissions]}
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                  <SubmitButton
-                    purpose="create"
-                    label="Reserve an ID"
-                    requireStorage={false}
-                  />
-                </Stack>
-              )
-            }
+      <main id={ns.new}>
+        <h1>Create a New Token Type</h1>
+        {(() => {
+          if(connecting) {
             return (
-              <Text>¿How’d we get here?</Text>
+              <section>
+                <CircleLoader color="#FF7301" size={100}/>
+                <h2>Connecting…</h2>
+              </section>
             )
-          })()}
-        </Stack>
-      </Center>
+          }
+          if(working) {
+            return (
+              <section>
+                <CircleLoader color="#6EA8FF" size={100}/>
+                <h2>Reserving your token…</h2>
+              </section>
+            )
+          }
+          if(!tokenId) {
+            return (
+              <form onSubmit={handleSubmit(reserve)}>
+                <label id={ns.admin}>
+                  <h2>Admin</h2>
+                  <input
+                    {...register('maintainer')}
+                    placeholder="Maintainer Address (default Creator)"
+                  />
+                </label>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Role</th>
+                      <th>
+                        <Tippy content="Give the admin these roles:">
+                          <span>Grant</span>
+                        </Tippy>
+                      </th>
+                      <th>
+                        <Tippy content="Prevent these permissions from being checked:">
+                          <span>Disable</span>
+                        </Tippy>
+                      </th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {roles.map((role, idx) => (
+                      <tr key={idx}>
+                        <td>{role}</td>
+                        <td>
+                          <input type="checkbox" {...register(`grant(${role})`)}/>
+                        </td>
+                        <td>
+                          <input type="checkbox" {...register(`disable(${role})`)}/>
+                        </td>
+                        <td>
+                          {rolePermissions[role as keyof typeof rolePermissions]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <SubmitButton
+                  purpose="create"
+                  label="Reserve an ID"
+                  className="full"
+                  requireStorage={false}
+                />
+              </form>
+            )
+          }
+          return (
+            <p>¿How’d we get here?</p>
+          )
+        })()}
+      </main>
     )
   }
 

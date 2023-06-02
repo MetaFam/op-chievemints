@@ -1,9 +1,6 @@
 import React, {
   ReactNode, useEffect, useMemo, useState,
 } from 'react'
-import {
-  Alert, AlertDescription, AlertIcon, AlertTitle, Box, Spinner,
-} from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import JSON5 from 'json5'
@@ -13,6 +10,8 @@ import {
 } from '@/lib/helpers'
 import { HomeLink, OptionsForm } from '@/components'
 import type { ERC1155Metadata, Maybe } from '@/lib/types'
+import { RingLoader } from 'react-spinners'
+import '../styles/edit.css'
 
 export const Edit = () => {
   const { nftId } = useParams()
@@ -29,7 +28,7 @@ export const Edit = () => {
           const metaURI = await roContract.uri(tokenId)
           const url = httpURL(metaURI)
           if(!metaURI || metaURI === '') {
-            throw new Error('No metadata URI.')
+            setMetadata({})
           } else {
             const response = await fetch(url)
             const body = await response.text()
@@ -52,27 +51,29 @@ export const Edit = () => {
   }, [roContract, tokenId])
 
   return (
-    <Box ml={16}>
+    <main id="edit">
       <Helmet>
         <title>’𝖈𝖍𝖎𝖊𝖛𝖊: ℰ𝒹𝒾𝓉 #{tokenId && regexify(tokenId)}</title>
       </Helmet>
       <HomeLink/>
       {error && (
-        <Alert status="error">
-          <AlertIcon/>
-          <AlertTitle>`setMetadata` Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <aside className="error">
+          <span>`setMetadata` Error</span>
+          <span>{error}</span>
+        </aside>
       )}
       {metadata === undefined ? (
-        <Box><Spinner/> Loading {metaURI}…</Box>
+        <aside>
+          <RingLoader color="#36d7b7"/>
+          <span>Loading {metaURI}…</span>
+        </aside>
       ) : (
         <OptionsForm
           purpose="update"
           {...{ tokenId, metadata, metaURI }}
         />
       )}
-    </Box>
+    </main>
   )
 }
 

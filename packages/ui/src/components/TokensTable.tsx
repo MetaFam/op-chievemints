@@ -1,282 +1,280 @@
-import {
-  Box, Flex, Spinner, Stack, Table, Tbody, Td, Text, Th, Thead, Tr,
-  Link as ChakraLink, Tooltip, chakra, type TableCellProps,
-} from '@chakra-ui/react'
+/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable @next/next/no-img-element */
+import Tippy from '@tippyjs/react'
 import { extractMessage, httpURL, regexify } from '@/lib/helpers'
 import type { TokenState } from '@/lib/types'
 import Markdown from 'react-markdown'
 import React from 'react'
-import { Link as ReactRouterLink } from 'react-router-dom'
-
-const RouterLink = chakra(ReactRouterLink)
+import { ClimbingBoxLoader } from 'react-spinners'
+import { Link } from 'react-router-dom'
+import '../styles/TokensTable.css'
 
 type IndexedToken = { token: TokenState, index: number }
 type Token = { token: TokenState }
 
-const IdTd:React.FC<IndexedToken> = ({ token }) => (
-  <Td>
-    <Tooltip
-      label={token.id != null ? (
+const Index:React.FC<IndexedToken> = ({ token }) => (
+  <div className="index">
+    <Tippy
+      content={token.id != null ? (
         regexify(token.id)
       ) : (
         '𝚄𝚗𝚔𝚗𝚘𝚠𝚗'
       )}
     >
-      <Stack>
-        <Text>{token.index}</Text>
+      <p className="content">
+        <span>{token.index}</span>
         {token.gates != null && (
-          <Text title={`Controls Token #${token.gates}`}>
+          <span title={`Controls Token #${token.gates}`}>
             ({token.gates === 0 ? 'all' : token.gates})
-          </Text>
+          </span>
         )}
         {token.is?.disabling && (
-          <Text>(disabled)</Text>
+          <span>(disabled)</span>
         )}
-      </Stack>
-    </Tooltip>
-  </Td>
+      </p>
+    </Tippy>
+  </div>
 )
 
-const ErrorTd:React.FC<Token> = ({ token }) => (
-  <Td colSpan={4}>
-    <Flex justify="center">
-      <Text color="cyan" fontStyle="italic">
-        {extractMessage(token.error)}
-      </Text>
-    </Flex>
-  </Td>
+const Error:React.FC<Token> = ({ token }) => (
+  <div className="error">
+    <p className="content">{extractMessage(token.error)}</p>
+  </div>
 )
 
-const LoadingTd:React.FC<
-  Token & { label?: string } & TableCellProps
-> = (
+const Loading:React.FC<{ label?: string }> = (
   ({ label = 'Loading Metadata…', ...props }) => (
-    <Td {...props}>
-      <Flex justify="center">
-        <Spinner thickness="4px"/>
-        <Text ml={3}>{label}</Text>
-      </Flex>
-    </Td>
+    <div className="loading">
+      <p className="content" {...props}>{label}</p>
+    </div>
   )
 )
 
-const ImageTd:React.FC<Token> = ({ token }) => (
-  <Td>
-    <Stack>
-      <RouterLink to={`/view/${regexify(token.id)}`}>
-        <Box
-          bg={
-            token.metadata?.background_color ? (
-              `#${token.metadata.background_color}`
-            ) : (
-              'transparent'
-            )
-          }
-        >
-          {token.metadata?.image && (
-            <chakra.object
-              data={httpURL(token.metadata.image) ?? undefined}
-              title={token.metadata?.name ?? 'Untitled'}
-              maxW={32}
-              maxH={32}
-              objectFit="contain"
-              margin="auto"
-            />
-          )}
-        </Box>
-        <Text>{token.metadata?.name ?? (
-          <Text as="em">Untitled</Text>
-        )}</Text>
-      </RouterLink>
-    </Stack>
-  </Td>
+const Finding:React.FC<{ label?: string }> = (
+  ({ label = 'Finding Metadata…', ...props }) => (
+    <div className="finding">
+      <p className="content" {...props}>{label}</p>
+    </div>
+  )
 )
 
-const DescriptionTd:React.FC<Token> = ({ token }) => (
-  <Td
-    flexGrow={1}
-    sx={{
-      a: { textDecoration: 'underline' },
-      blockquote: { borderLeft: '3px solid #66666644' },
-    }}
-  >
-    {token.is?.disabling && (
-      <Text textAlign="justify" fontStyle="italic" mb={5}>
-        This token disables the following permission for
-        <RouterLink to={`/view/${token.gates}`} ml={1}>
-          the token at index #{token.gates}
-        </RouterLink>:
-      </Text>
-    )}
-    {token.is?.gating && (
-      <Text textAlign="justify" fontStyle="italic" mb={5}>
-        This token gives holders the following permission for
-        {token.gates === 0 ? (
-          ' all tokens'
-        ) : (
-          <RouterLink to={`/view/${token.gates}`} ml={1}>
-            the token at index #{token.gates}
-          </RouterLink>
-        )}:
-      </Text>
-    )}
-    <Markdown linkTarget="_blank">
-      {token.is?.disabling || token.is?.gating ? (
-        `> ${token.metadata.description.replace(/\n/g, "\n> ")}`
-      ) : (
-        token.metadata?.description ?? (
-          '*No Description*'
-        )
+declare module 'csstype' {
+  interface Properties {
+    '--img-bg'?: string
+  }
+}
+
+const Image:React.FC<Token> = ({ token }) => (
+  <div className="img" style={{ '--img-bg': `#${token.metadata.background_color}` }}>
+    <Link to={`/view/${regexify(token.id)}`} className="content">
+      {token.metadata?.image && (
+        <img
+          src={httpURL(token.metadata.image) ?? undefined}
+          alt={token.metadata?.name ?? 'Untitled'}
+        />
       )}
-    </Markdown>
-  </Td>
+    </Link>
+  </div>
 )
 
-const LinkTd:React.FC<Token> = ({ token }) => (
-  <Td>
+const Description:React.FC<Token> = ({ token }) => (
+  <div className="text">
+    <div className="title">
+      <h2 className="content">
+        {token.metadata?.name ?? (
+          <em>Untitled</em>
+        )}
+        {token.gates == null ? '' : (
+          token.gates === 0 ? (
+            ' for all tokens'
+          ) : (
+            <>
+              {' '}for{' '}
+              <Link to={`/view/${token.gates}`}>
+                #{token.gates}
+              </Link>
+            </>
+          )
+        )}
+      </h2>
+    </div>
+    <div className="desc">
+      {token.is?.disabling && (
+        <p className="content">
+          This token <b>disables</b> the following permission for{' '}
+          <Link to={`/view/i:${token.gates}`}>
+            the token at index #{token.gates}
+          </Link>:
+        </p>
+      )}
+      {token.is?.gating && (
+        <p className="content">
+          This token gives holders the following permission for{' '}
+          {token.gates === 0 ? (
+            'all tokens'
+          ) : (
+            <Link to={`/view/${token.gates}`}>
+              the token at index #{token.gates}
+            </Link>
+          )}:
+        </p>
+      )}
+      <Markdown linkTarget="_blank" className="content">
+        {token.is?.disabling || token.is?.gating ? (
+          `> ${token.metadata.description.replace(/\n/g, "\n> ")}`
+        ) : (
+          token.metadata?.description ?? (
+            '*No Description*'
+          )
+        )}
+      </Markdown>
+    </div>
+  </div>
+)
+
+const LinkLink:React.FC<Token> = ({ token }) => (
+  <div className="homepage">
     {token.metadata?.external_url && (
-      <ChakraLink
-        href={token.metadata.external_url}
-        isExternal
-        fontSize="150%"
-      >
-        <Tooltip label={token.metadata.external_url} hasArrow>
-          🌐
-        </Tooltip>
-      </ChakraLink>
-    )}
-  </Td>
-)
-
-const URITd:React.FC<Token> = ({ token }) => (
-  <Td>
-    {token.uri && (
-      <Flex justify="center" fontSize="150%">
-        <ChakraLink href={httpURL(token.uri) ?? undefined} isExternal>
-          <Tooltip label={token.uri} hasArrow>
-            🔗
-          </Tooltip>
-        </ChakraLink>
-        <ChakraLink
-          ml={2}
-          onClick={() => {
-            if(
-              token.uri
-              && typeof navigator !== 'undefined'
-              && window.isSecureContext
-            ) {
-              navigator.clipboard?.writeText(token.uri)
-            }
-          }}
+      <Tippy content={token.metadata.external_url}>
+        <a
+          className="content"
+          href={token.metadata.external_url}
+          target="_blank" rel="noreferrer"
         >
-          <Tooltip label="Copy to Clipboard" hasArrow>
-            📋
-          </Tooltip>
-        </ChakraLink>
-      </Flex>
+          🌐
+        </a>
+      </Tippy>
     )}
-  </Td>
+  </div>
 )
 
-const TotalTd:React.FC<Token> = ({ token }) => (
-  <Td>
-    <RouterLink to={`/owners/${regexify(token.id)}`} whiteSpace="pre">
-      {token.total?.toString() ?? <Spinner size="xs"/>}
-      {' ⁄ '}
-      {token.max?.toString() ?? <Spinner size="xs"/>}
-    </RouterLink>
-  </Td>
+const URI:React.FC<Token> = ({ token }) => (
+  (token.uri && (
+    <nav className="metainfo">
+      <ul>
+        <li className="source">
+          <Tippy content={token.uri}>
+            <a
+              className="content"
+              href={httpURL(token.uri) ?? undefined}
+              target="_blank" rel="noreferrer"
+            >
+              🔗
+            </a>
+          </Tippy>  
+        </li>
+        <li className="clipboard">
+          <Tippy content="Copy to Clipboard">
+            <button
+              className="content"
+              onClick={() => {
+                if(token.uri && window.isSecureContext) {
+                  navigator?.clipboard?.writeText(token.uri)
+                }
+              }}
+            >
+              📋
+            </button>
+          </Tippy>
+        </li>
+      </ul>
+    </nav>
+  ))
 )
 
-const ActionsTd:React.FC<Token> = ({ token }) => {
+const Total:React.FC<Token> = ({ token }) => {
+  const label = `${token.total?.toString()} minted of ${token.max?.toString()} total`
+
+  return (
+    <div className="quantity">
+      <Link to={`/owners/${regexify(token.id)}`} className="content">
+        <Tippy content={label}><>
+          <sup>{
+            token.total?.toString()
+            ?? <ClimbingBoxLoader size={4} color="#FE0235"/>
+          }</sup>
+          {'⁄'}
+          <sub>{
+            Number(token.max) < 0 ? '∞' : token.max?.toString()
+            ?? <ClimbingBoxLoader size={4} color="#EF2299"/>
+          }</sub>
+        </></Tippy>
+      </Link>
+    </div>
+  )
+}
+
+const Actions:React.FC<Token> = ({ token }) => {
   const id = regexify(token.id)
 
   return (
-    <Td>
-      <Flex justify="center" fontSize="150%">
-        <RouterLink to={`/edit/${id}`}>
-          <Tooltip label="Edit Metadata" hasArrow>
-            ✏️
-          </Tooltip>
-        </RouterLink>
-        <RouterLink ml={2} to={`/view/${id}`}>
-          <Tooltip label="View This NFT" hasArrow>
-            👁
-          </Tooltip>
-        </RouterLink>
-        <RouterLink ml={2} to={`/disburse/${id}`}>
-          <Tooltip label="Disburse This NFT" hasArrow>
-            💸
-          </Tooltip>
-        </RouterLink>
-      </Flex>
-    </Td>
+    <nav className="actions">
+      <ul>
+        <li className="edit">
+          <Tippy content="Edit Metadata">
+            <Link to={`/edit/${id}`} className="content">
+              ✏️
+            </Link>
+          </Tippy>
+        </li>
+        <li className="view">
+          <Tippy content="View This NFT">
+            <Link to={`/view/${id}`} className="content">
+              👁
+            </Link>
+          </Tippy>
+        </li>
+        <li className="disburse">
+          <Tippy content="Disburse This NFT">
+            <Link to={`/disburse/${id}`} className="content">
+              💸
+            </Link>
+          </Tippy>
+        </li>
+      </ul>
+    </nav>
   )
 }
 
 export const TokensTable: React.FC<{
   tokens: Array<TokenState | Error>
-}> = ({ tokens }) => {
-  return (
-    <Table
-      sx={{
-        'th, td': { textAlign: 'center' },
-        a: { borderBottom: '2px dotted transparent' },
-        'a:hover': {
-          textDecoration: 'none',
-          borderBottom: '2px dotted',
-        },
-      }}
-    >
-      <Thead>
-        <Tr>
-          <Th>Id</Th>
-          <Th>Display</Th>
-          <Th flexGrow={1}>Description</Th>
-          <Th>Link</Th>
-          <Th>Metadata</Th>
-          <Th>Total</Th>
-          <Th>Actions</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {tokens.map((token: TokenState, index) => {
-          if(token.is?.hidden) {
-            return null
-          }
-          return (
-            <Tr key={index}>
-              <IdTd {...{ token, index }}/>
-              {(() => {
-                if(!token.uri && token.error) {
-                  return <ErrorTd {...{ token }}/>
-                }
-                if(!token.metadata) {
-                  return (
-                    <LoadingTd
-                      colSpan={token.uri ? 3 : 4}
-                      label={`${token.uri ? 'Loading' : 'Finding'} Metadata…`}  
-                      {...{ token }}
-                    />
-                  )
-                }
-                return (
-                  <>
-                    <ImageTd {...{ token }}/>
-                    <DescriptionTd {...{ token }}/>
-                    <LinkTd {...{ token }}/>
-                  </>
+}> = ({ tokens }) => (
+  <section id="tokens">
+    {tokens.map((token: TokenState, index) => {
+      if(token.is?.hidden) {
+        return null
+      }
+      return (
+        <article className="token" key={index}>
+          <Index {...{ token, index }}/>
+          {(() => {
+            if(token.error) {
+              return <Error {...{ token }}/>
+            }
+            if(!token.metadata) {
+              return (
+                !token.uri ? (
+                  <Finding/>
+                ) : (
+                  <Loading/>
                 )
-              })()}
-              {token.uri && <URITd {...{ token }}/>}
-              <TotalTd {...{ token }}/>
-              <ActionsTd {...{ token }}/>
-            </Tr>
-          )
-        })}
-      </Tbody>
-    </Table>
-  )
-}
+              )
+            }
+            return (
+              <>
+                <Image {...{ token }}/>
+                <Description {...{ token }}/>
+                <LinkLink {...{ token }}/>
+              </>
+            )
+          })()}
+          <URI {...{ token }}/>
+          <Total {...{ token }}/>
+          <Actions {...{ token }}/>
+        </article>
+      )
+    })}
+  </section>
+)
 
 export default TokensTable

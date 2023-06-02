@@ -1,28 +1,27 @@
 import { useWeb3 } from '@/lib/hooks'
 import { Maybe } from '@/lib/types'
-import {
-  Flex, FormControl, FormLabel, Input,
-  Spinner, Text, useToast
-} from '@chakra-ui/react'
 import React, {
   ChangeEvent, FormEvent, useCallback, useEffect, useState
 } from 'react'
 import { SubmitButton } from './SubmitButton'
-import { ButtonProps } from '@chakra-ui/react'
 import { extractMessage } from '@/lib/helpers'
+import { BarLoader } from 'react-spinners'
+import { toast } from 'react-toastify'
+
+type MaxFormProps = {
+  tokenId?: string
+  perUser?: boolean
+  purpose: string
+} & React.HTMLProps<HTMLFormElement>
+
 
 export const MaxForm = (
   { tokenId, purpose = 'create', perUser = false, ...props }:
-  ButtonProps & {
-    tokenId?: string
-    perUser?: boolean
-    purpose: string
-  }
+  MaxFormProps
 ) => {
   const [max, setMax] = useState<Maybe<string>>(null)
   const [processing, setProcessing] = useState(false)
   const { roContract, rwContract } = useWeb3()
-  const toast = useToast()
 
   useEffect(() => {
     const load = async () => {
@@ -35,7 +34,7 @@ export const MaxForm = (
       }
     }
     load()
-  }, [tokenId, roContract])
+  }, [tokenId, roContract, perUser])
   
   const save = useCallback(async (evt: FormEvent) => {
     evt.preventDefault()
@@ -48,57 +47,44 @@ export const MaxForm = (
       let tx
       if (perUser){
         tx = await rwContract.setPerUserMax(tokenId, max)
-      }else{
+      } else {
         tx = await rwContract.setMax(tokenId, max)
       }
-        await tx.wait()
+      await tx.wait()
     } catch(error) {
-      toast({
-        title: 'Contract Error',
-        description: extractMessage(error),
-        status: 'error',
-        isClosable: true,
-        duration: 10000
-      })
+      toast(extractMessage(error))
     } finally {
       setProcessing(false)
     }
-  }, [max, rwContract, toast, tokenId])
+  }, [max, perUser, rwContract, tokenId])
 
   return (
-    <Flex 
-      as="form"
-      onSubmit={save}
-      alignItems="flex-end"
-    >
-      <FormControl display="flex" w="auto" alignItems="baseline" mt={3}>
-        <FormLabel whiteSpace="pre" _after={{ content: '":"' }}>
-          {perUser && 'Per User'} Maximum Mintable
-        </FormLabel>
+    <form onSubmit={save} {...props}>
+      <label>
+        <h3>{perUser && 'Per User'} Maximum Mintable</h3>
         {max == null ? (
-          <Flex>
-            <Spinner/>
-            <Text ml={3}>Loading…</Text>
-          </Flex>
+          <div>
+            <BarLoader color="#2768ff"/>
+            <p>Loading…</p>
+          </div>
         ) : (
-          <Input
+          <input
             type="number"
-            mx={{ base: 0, md: 4 }}
-            w={32}
-            textAlign="center"
             value={max}
             onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
               setMax(value.trim().replace(/^0+([^0])/, '$1'))
             }}
           />
-        )}  
-      </FormControl>
+        )}
+      </label>
       <SubmitButton
         label={`Set ${perUser ? 'Per User': ''} Max`}
         disabled={!/^-?\d+$/.test(max)}
         requireStorage={false}
-        {...{ purpose, processing, ...props }}
+        short={true}
+        className="full"
+        {...{ purpose, processing }}
       />
-    </Flex>
-)
+    </form>
+  )
 }
