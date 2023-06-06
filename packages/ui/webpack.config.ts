@@ -4,6 +4,7 @@ import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
 import dotenv from 'dotenv'
 import { ExternalProvider } from '@ethersproject/providers'
+import postcssPresetEnv from 'postcss-preset-env'
 import { defines, hideValues } from './src/lib/build'
 
 declare global {
@@ -27,6 +28,23 @@ const config = (env: any) => {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /node_modules/,
+        },
+        {
+          test: /\.css$/i,
+          use: [
+            'style-loader',
+            'css-loader',
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    postcssPresetEnv({ stage: 0 })
+                  ],
+                },
+              },
+            },
+          ],
         },
       ],
     },

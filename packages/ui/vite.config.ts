@@ -42,7 +42,7 @@ export default defineConfig(
           ignoreGlobal: false,
           requireReturnsDefault: false,
           // defaultIsModuleExports: true,
-          // dynamicRequireTargets: ['**/react/**'],
+          // dynamicRequireTargets: ['**/elliptic/**'],
           // esmExternals: ['react-helmet']
         },
         rollupOptions: {

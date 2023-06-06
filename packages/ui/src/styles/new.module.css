@@ -2,41 +2,41 @@
   display: flex;
   flex-direction: column;
 
-  section {
+  & section {
     display: grid;
     place-items: center;
     margin-block-start: 2rem;
   }
 
-  table {
+  & table {
     width: 100%;
     border-collapse: collapse;
     margin-block: 2rem;
 
-    th {
+    & th {
       padding-inline: 0.5rem;
       border-bottom: 1px solid var(--font-color);
     }
 
-    tbody {
-      td:nth-of-type(1) {
+    & tbody {
+      & td:nth-of-type(1) {
         text-align: right;
       }
 
-      td:nth-of-type(2), td:nth-of-type(3) {
+      & td:nth-of-type(2), td:nth-of-type(3) {
         text-align: center;
       }
     }
 
-    tr:hover {
+    & tr:hover {
       background-color: var(--active-color);
     }
   }
 
-  #admin {
+  & #admin {
     display: flex;
 
-    h2 {
+    & h2 {
       margin: 0;
     }
 
@@ -44,7 +44,7 @@
       content: ': ';
     }
 
-    input {
+    & input {
       flex-grow: 1;
     }
   }

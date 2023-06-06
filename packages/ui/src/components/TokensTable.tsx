@@ -69,7 +69,7 @@ const Image:React.FC<Token> = ({ token }) => (
     <Link to={`/view/${regexify(token.id)}`} className="content">
       {token.metadata?.image && (
         <img
-          src={httpURL(token.metadata.image) ?? undefined}
+          src={httpURL(token.metadata.image as string) ?? undefined}
           alt={token.metadata?.name ?? 'Untitled'}
         />
       )}
