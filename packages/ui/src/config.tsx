@@ -10,6 +10,7 @@ declare const IPFS_LINK_PATTERN: string
 declare const NFT_STORAGE_API_TOKEN: string
 declare const NFT_GRAPH: string
 declare const NFT_BASE: string
+declare const WALLET_CONNECT_PROJECT_ID: string
 
 export const contractNetwork = (
   (() => {
@@ -57,6 +58,14 @@ export const nftBase = (
 export const envNFTStorageAPIToken = (
   (typeof NFT_STORAGE_API_TOKEN !== 'undefined') ? (
     NFT_STORAGE_API_TOKEN
+  ) : (
+    null
+  )
+)
+
+export const walletConnectProjectId = (
+  (typeof WALLET_CONNECT_PROJECT_ID !== 'undefined') ? (
+    WALLET_CONNECT_PROJECT_ID
   ) : (
     null
   )

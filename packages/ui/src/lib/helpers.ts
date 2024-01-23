@@ -8,6 +8,7 @@ import { NETWORKS } from '@/lib/networks'
 import { ipfsLinkPattern } from '@/config'
 import JSON5 from 'json5'
 import { NFTStorage } from 'nft.storage'
+import { Web3Provider } from '@ethersproject/providers'
 
 export function httpURL(uri?: null): undefined
 export function httpURL(uri: string): string
@@ -75,10 +76,12 @@ export const isSet = (
   }
 )
 
-export const switchTo = async (chain: number) => {
+export const switchTo = async (
+  { chain, provider }: { chain: number, provider: Web3Provider }
+) => {
   const chainId = `0x${chain.toString(16)}`
   try {
-    await window.ethereum.request?.({
+    await provider.request?.({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId }],
     })

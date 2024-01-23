@@ -5,11 +5,12 @@ declare const MAINNET_RPC: string
 declare const GNOSIS_RPC: string
 declare const POLYGON_RPC: string
 declare const MUMBAI_RPC: string
+declare const OPTIMISM_RPC: string
 declare const LOCAL_RPC: string
 
 // Using Object.keys(NETWORKS) results in infinite recursion
 const networks = [
-  'mainnet', 'gnosis', 'polygon', 'mumbai', 'localhost'
+  'mainnet', 'gnosis', 'polygon', 'mumbai', 'optimism', 'localhost'
 ]
 
 export const NETWORKS: NetworkInfo = {
@@ -17,58 +18,70 @@ export const NETWORKS: NetworkInfo = {
     chainId: 1,
     name: 'Ethereum Mainnet',
     label: 'Ethereum',
-    symbol: 'ETH',
-    explorer: 'https://etherscan.io',
-    rpc: (typeof MAINNET_RPC !== 'undefined' ? (
+    currency: 'ETH',
+    explorerUrl: 'https://etherscan.io',
+    rpcUrl: (typeof MAINNET_RPC !== 'undefined' ? (
       MAINNET_RPC
     ) : (
-      'https://eth.public-rpc.com/'
+      'https://eth.public-rpcUrl.com/'
     )),
   },
   gnosis: {
     chainId: 0x64,
     name: 'Gnosis Chain',
     label: 'Gnosis',
-    symbol: 'xDAI',
-    explorer: 'https://blockscout.com/xdai/mainnet',
-    rpc: (typeof GNOSIS_RPC !== 'undefined' ? (
+    currency: 'xDAI',
+    explorerUrl: 'https://blockscout.com/xdai/mainnet',
+    rpcUrl: (typeof GNOSIS_RPC !== 'undefined' ? (
       GNOSIS_RPC
     ) : (
-      'https://rpc.gnosischain.com/'
+      'https://rpcUrl.gnosischain.com/'
     )),
   },
   polygon: {
     chainId: 137,
     name: 'Polygon',
     label: 'Polygon',
-    symbol: 'MATIC',
-    explorer: 'https://polygonscan.com',
-    rpc: (typeof POLYGON_RPC !== 'undefined' ? (
+    currency: 'MATIC',
+    explorerUrl: 'https://polygonscan.com',
+    rpcUrl: (typeof POLYGON_RPC !== 'undefined' ? (
       POLYGON_RPC
     ) : (
-      'https://polygon-rpc.com'
+      'https://polygon-rpcUrl.com'
     )),
   },
   mumbai: {
     chainId: 80001,
     name: 'Polygon’s Mumbai Testnet',
     label: 'Mumbai',
-    symbol: '𝙼𝙰𝚃𝙸𝙲',
-    explorer: 'https://mumbai.polygonscan.com',
-    rpc: (typeof MUMBAI_RPC !== 'undefined' ? (
+    currency: '𝙼𝙰𝚃𝙸𝙲',
+    explorerUrl: 'https://mumbai.polygonscan.com',
+    rpcUrl: (typeof MUMBAI_RPC !== 'undefined' ? (
       MUMBAI_RPC
     ) : (
-      'https://rpc.ankr.com/polygon_mumbai'
-      ?? 'https://rpc-mumbai.matic.today'
+      'https://rpcUrl.ankr.com/polygon_mumbai'
+      ?? 'https://rpcUrl-mumbai.matic.today'
+    )),
+  },
+  optimisticEthereum: {
+    chainId: 10,
+    name: 'Optimism',
+    label: 'Optimism',
+    currency: 'OETH',
+    explorerUrl: 'https://optimistic.etherscan.io',
+    rpcUrl: (typeof OPTIMISM_RPC !== 'undefined' ? (
+      OPTIMISM_RPC
+    ) : (
+      'https://mainnet.optimism.io'
     )),
   },
   localhost: {
     chainId: 0x7a69,
     name: 'Ganache',
     label: 'Ganache',
-    symbol: '🄴🅃🄷',
-    explorer: null,
-    rpc: (typeof LOCAL_RPC !== 'undefined' ? (
+    currency: '🄴🅃🄷',
+    explorerUrl: null,
+    rpcUrl: (typeof LOCAL_RPC !== 'undefined' ? (
       LOCAL_RPC
     ) : (
       'http://127.0.0.1:8545'

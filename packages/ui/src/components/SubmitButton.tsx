@@ -50,7 +50,7 @@ export const SubmitButton: React.FC<{
         connect()
       } else if(offChain) {
         evt.preventDefault()
-        switchTo(NETWORKS.contract.chainId)
+        switchTo({ chain: NETWORKS.contract.chainId, provider: userProvider })
       } else if(!storage && requireStorage) {
         evt.preventDefault()
         openSettings()

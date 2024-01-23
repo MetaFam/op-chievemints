@@ -2,6 +2,7 @@ import {
   ExternalProvider, Web3Provider, JsonRpcProvider, StaticJsonRpcProvider,
 } from '@ethersproject/providers'
 import { Contract } from '@ethersproject/contracts'
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react'
 import type { Maybe } from '@/lib/types'
 import React, {
   createContext,
@@ -14,7 +15,7 @@ import React, {
 } from 'react'
 import providerOptions from '@/lib/walletConnect'
 import { NETWORKS } from '@/lib/networks'
-import { contractNetwork } from '@/config'
+import { contractNetwork, walletConnectProjectId } from '@/config'
 
 export type Web3ContextType = {
   userProvider?: Web3Provider
@@ -78,18 +79,23 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
     useEffect(() => {
       const lib = async () => {
         if(typeof window !== 'undefined') {
-          const { default: Web3Modal } = await import('web3modal')
-          setWeb3Modal(new Web3Modal({
-            network: (
-              contractNetwork === 'polygon'
-              ? 'matic' : contractNetwork
-            ),
-            cacheProvider: true,
-            providerOptions,
-          }))
+          const metadata = {
+            name: '’Chievemints',
+            description: 'MetaGame’s NFT ’Chievemints award attestations.',
+            url: 'https://chiev.es',
+            icons: [],
+          }
+
+          setWeb3Modal(
+            createWeb3Modal({
+              projectId: walletConnectProjectId,
+              chains: [NETWORKS[contractNetwork]],
+              ethersConfig: defaultConfig({ metadata }),
+            })
+          )
         }
       }
-      
+
       lib()
     }, [])
 
@@ -98,13 +104,13 @@ export const Web3ContextProvider: React.FC<{ children: ReactNode }> = (
     )
 
     const ensProvider = useMemo(
-      () => new StaticJsonRpcProvider(NETWORKS.mainnet.rpc),
+      () => new StaticJsonRpcProvider(NETWORKS.mainnet.rpcUrl),
       [],
     )
 
     const contractProvider = useMemo(
       () => (
-        new StaticJsonRpcProvider(NETWORKS.contract.rpc)
+        new StaticJsonRpcProvider(NETWORKS.contract.rpcUrl)
       ),
       [],
     )

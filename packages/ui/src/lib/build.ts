@@ -4,7 +4,7 @@ export const defines = (env: Record<string, unknown>) => (
       if(key.startsWith('VITE_RAW_')) {
         return [key.replace(/^VITE_RAW_/, ''), val]
       } else if(key.startsWith('VITE_')) {
-          return [key.replace(/^VITE_/, ''), JSON.stringify(val)]
+        return [key.replace(/^VITE_/, ''), JSON.stringify(val)]
       } else {
         return null
       }

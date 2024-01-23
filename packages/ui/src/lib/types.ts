@@ -15,9 +15,9 @@ export type NetworkInfo = {
     chainId: number;
     name: string;
     label: string;
-    symbol: string;
-    explorer: Maybe<string>;
-    rpc: string;
+    currency: string;
+    explorerUrl: Maybe<string>;
+    rpcUrl: string;
   }
 }
 
