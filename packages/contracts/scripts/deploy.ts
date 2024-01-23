@@ -6,6 +6,7 @@ import {
 } from 'hardhat'
 import { utils, Contract } from 'ethers'
 import R from 'ramda'
+import { HardhatNetworkAccountsConfig, HardhatNetworkHDAccountsConfig } from 'hardhat/types'
 
 const initializerArgs = ['MetaGame ’Chievemints', 'MG’s 🏆s']
 
@@ -94,7 +95,7 @@ const deploy = async ({
     address: deployed,
     signer: signator,
     deployTransaction: {
-      gasPrice: gas, hash: tx, chainId: chain, gasLimit,
+      gasPrice: gas, hash: tx, gasLimit,
     },
   } = deployment
   const signer = await signator.getAddress()

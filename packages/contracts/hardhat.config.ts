@@ -44,6 +44,7 @@ const validationKeyNames = {
   polygon: 'POLYGONSCAN_API_KEY',
   polygonMumbai: 'POLYGONSCAN_API_KEY',
   dysMumbai: 'POLYGONSCAN_API_KEY',
+  optimisticEthereum: 'OPTIMISMSCAN_API_KEY',
 }
 
 const apiKey = Object.fromEntries(
@@ -120,10 +121,17 @@ const config: HardhatUserConfig = {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${alchemyId}`,
       accounts: { mnemonic },
     },
+    optimism: {
+      url: `https://opt-mainnet.g.alchemy.com/v2/${alchemyId}`,
+      accounts: { mnemonic },
+    },
+    get optimisticEthereum() {
+      return this.optimism
+    },
   },
   solidity: {
     compilers: [{
-      version: '0.8.4',
+      version: '0.8.23',
       settings: {
         optimizer: {
           enabled: true,

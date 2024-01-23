@@ -139,9 +139,16 @@ contract BulkDisbursableNFTs is
   // To allow enumeration of all the tokens, a list is kept.
   CheckableList private tokens;
 
+  // Permissioning tokens are tracked in a separate list.
+  CheckableList private permissions;
+
   // To allow listing the tokens held by a user, a map
   // of owner to a list of tokens is maintained.
   mapping (address => CheckableList) private owned;
+
+  // To allow listing the owners of a token, a map
+  // of owner to a list of tokens is maintained.
+  mapping (uint256 => address[]) private owners;
 
   mapping (uint256 => uint256) public uintValues;
   mapping (uint256 => int256) public intValues;
@@ -162,7 +169,9 @@ contract BulkDisbursableNFTs is
     __ERC1155Supply_init();
     __UUPSUpgradeable_init();
 
+    // Token id 0 is reserved, so it is skipped.
     tokens.entries.push(0);
+
     setDescription(_name, _symbol);
   }
 
@@ -181,8 +190,8 @@ contract BulkDisbursableNFTs is
   /**
    * @notice This function returns the gating token with the given
    * role. It is possible for gating tokens to operate only on a
-   * single other token, but this method creates a token for id zero
-   * which allows it to operate on any token.
+   * single other token, but this method checks id zero which
+   * represents the role applies to all tokens.
    */
   function roleToken(Roles.Role role)
     public

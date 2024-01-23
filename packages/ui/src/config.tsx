@@ -12,11 +12,22 @@ declare const NFT_GRAPH: string
 declare const NFT_BASE: string
 
 export const contractNetwork = (
-  (typeof CHAIN_NAME !== 'undefined') ? (
-    CHAIN_NAME
-  ) : (
-    'polygon'
-  )
+  (() => {
+    switch(window.location.host) {
+      case 'op.chiev.es': {
+        return 'optimisticEthereum'
+      }
+      case 'poly.chiev.es': {
+        return 'polygon'
+      }
+      default: {
+        if(typeof CHAIN_NAME !== 'undefined') {
+          return CHAIN_NAME
+        }
+        return 'polygon'
+      }
+    }
+  })()
 )
 
 export const ipfsLinkPattern = (
